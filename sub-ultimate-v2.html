@@ -1,0 +1,2751 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SUBULTIMATE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg0: #060c14;
+  --bg1: #0a1220;
+  --bg2: #0f1c30;
+  --bg3: #162540;
+  --bg4: #1d3155;
+  --cyan: #00d4ff;
+  --cyan2: #00a8cc;
+  --cyan-dim: rgba(0,212,255,0.15);
+  --cyan-glow: rgba(0,212,255,0.08);
+  --red: #ff4757;
+  --red-dim: rgba(255,71,87,0.15);
+  --gold: #ffc048;
+  --gold-dim: rgba(255,192,72,0.15);
+  --green: #2ed573;
+  --green-dim: rgba(46,213,115,0.15);
+  --purple: #a855f7;
+  --purple-dim: rgba(168,85,247,0.15);
+  --text: #e8f4fd;
+  --text2: #7a9bb5;
+  --text3: #4a6a85;
+  --border: rgba(0,212,255,0.12);
+  --border2: rgba(0,212,255,0.22);
+  --radius: 10px;
+  --radius2: 14px;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body {
+  font-family: 'Exo 2', sans-serif;
+  background: var(--bg0);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── BG CANVAS ── */
+#bgc {
+  position: fixed; inset: 0;
+  z-index: 0; pointer-events: none;
+}
+
+/* ── WRAPPER ── */
+#app { position: relative; z-index: 1; min-height: 100vh; }
+
+.screen { display: none; min-height: 100vh; flex-direction: column; }
+.screen.active { display: flex; }
+
+/* ══════════════════════════════
+   LOGIN / REGISTER MODAL STYLE
+══════════════════════════════ */
+#screen-login, #screen-register {
+  align-items: center; justify-content: center;
+  background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(0,212,255,0.05) 0%, transparent 70%);
+}
+
+.auth-modal {
+  background: var(--bg1);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius2);
+  padding: 2.5rem 2.2rem;
+  width: 420px;
+  box-shadow: 0 0 80px rgba(0,0,0,0.6), 0 0 40px rgba(0,212,255,0.06);
+  position: relative;
+}
+
+.auth-header {
+  display: flex; align-items: center;
+  gap: 0.7rem; margin-bottom: 1.2rem;
+}
+
+.auth-lock-icon {
+  width: 36px; height: 36px;
+  background: var(--cyan-dim);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+}
+
+.auth-title {
+  font-size: 1.3rem; font-weight: 800;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--text);
+}
+
+.auth-notice {
+  background: var(--cyan-glow);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.65rem 1rem;
+  font-size: 0.8rem;
+  color: var(--text2);
+  margin-bottom: 1.4rem;
+  line-height: 1.5;
+}
+
+.field-label {
+  font-size: 0.7rem; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text3);
+  margin-bottom: 0.4rem;
+}
+
+.field-wrap {
+  position: relative; margin-bottom: 1rem;
+}
+
+.field-icon {
+  position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+  font-size: 0.9rem; color: var(--text3); pointer-events: none;
+}
+
+.field-input {
+  width: 100%;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 0.9rem 0.75rem 2.4rem;
+  color: var(--text);
+  font-family: 'Exo 2', sans-serif;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.field-input:focus {
+  outline: none;
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 3px rgba(0,212,255,0.1);
+}
+
+.field-input::placeholder { color: var(--text3); }
+
+.auth-btn {
+  width: 100%;
+  background: var(--cyan);
+  color: var(--bg0);
+  border: none; border-radius: 8px;
+  padding: 0.85rem;
+  font-family: 'Exo 2', sans-serif;
+  font-size: 0.95rem; font-weight: 800;
+  letter-spacing: 2px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+.auth-btn:hover { background: #00eaff; box-shadow: 0 0 20px rgba(0,212,255,0.35); transform: translateY(-1px); }
+
+.auth-link {
+  text-align: center; margin-top: 1rem;
+  font-size: 0.85rem; color: var(--text2);
+}
+.auth-link a { color: var(--cyan); cursor: pointer; font-weight: 700; text-decoration: none; }
+
+.auth-error {
+  color: var(--red); font-size: 0.82rem;
+  text-align: center; min-height: 1.1rem; margin-top: 0.4rem;
+}
+
+/* ══════════════════════════════
+   TOPBAR
+══════════════════════════════ */
+.topbar {
+  display: flex; align-items: center;
+  padding: 0 1.5rem;
+  height: 52px;
+  background: rgba(6,12,20,0.96);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  position: sticky; top: 0; z-index: 100;
+  gap: 1.2rem;
+}
+
+.topbar-logo {
+  display: flex; align-items: center; gap: 0.6rem;
+  font-size: 1.15rem; font-weight: 900;
+  letter-spacing: 1px; flex-shrink: 0;
+}
+
+.topbar-logo span:first-child { color: var(--text); }
+.topbar-logo span:last-child { color: var(--cyan); }
+
+.topbar-anchor {
+  width: 30px; height: 30px;
+  background: var(--cyan-dim);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+}
+
+.topbar-mid { flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.6rem; }
+
+.audio-btn {
+  width: 34px; height: 34px;
+  background: var(--red-dim);
+  border: 1px solid rgba(255,71,87,0.3);
+  border-radius: 8px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; transition: all 0.2s; color: var(--text);
+}
+
+.audio-btn:hover { background: rgba(255,71,87,0.25); }
+.audio-btn.muted { background: var(--red-dim); }
+
+.topbar-right {
+  display: flex; align-items: center; gap: 0.8rem;
+  flex-shrink: 0;
+}
+
+.user-pill {
+  display: flex; align-items: center; gap: 0.8rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.35rem 0.8rem 0.35rem 0.5rem;
+  cursor: pointer;
+}
+
+.user-avatar {
+  width: 28px; height: 28px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem;
+}
+
+.user-info { display: flex; flex-direction: column; align-items: flex-end; }
+.user-name { font-size: 0.82rem; font-weight: 700; color: var(--text); line-height: 1.1; }
+.user-sub  { font-size: 0.68rem; color: var(--text3); line-height: 1.1; }
+
+.lvl-badge {
+  background: var(--cyan-dim);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 0.2rem 0.5rem;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.72rem; color: var(--cyan);
+}
+
+.honor-pill {
+  background: rgba(255,64,64,0.12);
+  border: 1px solid rgba(255,64,64,0.35);
+  border-radius: 8px;
+  padding: 0.3rem 0.8rem;
+  font-size: 0.7rem; font-weight: 800;
+  color: #ff6b6b; letter-spacing: 2px;
+}
+
+/* ══════════════════════════════
+   MAIN MENU LAYOUT
+══════════════════════════════ */
+.menu-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr 380px;
+  grid-template-rows: auto 1fr;
+  gap: 0;
+}
+
+/* Left col */
+.menu-left {
+  grid-column: 1 / 3;
+  padding: 1.5rem;
+  display: flex; flex-direction: column; gap: 1rem;
+}
+
+/* Right panel */
+.menu-right {
+  border-left: 1px solid var(--border);
+  padding: 1.2rem;
+  display: flex; flex-direction: column; gap: 1rem;
+  overflow-y: auto;
+  max-height: calc(100vh - 52px);
+}
+
+/* Quick action cards */
+.quickcards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.8rem;
+}
+
+.qcard {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  padding: 1.2rem 1rem;
+  cursor: pointer; transition: all 0.25s;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 0.5rem;
+  position: relative; overflow: hidden;
+  text-align: center;
+}
+
+.qcard::before {
+  content: '';
+  position: absolute; inset: 0;
+  opacity: 0; transition: opacity 0.25s;
+}
+
+.qcard:hover { border-color: var(--cyan); transform: translateY(-2px); }
+.qcard:hover::before { opacity: 1; background: var(--cyan-glow); }
+
+.qcard.purple-card { border-color: rgba(168,85,247,0.3); }
+.qcard.purple-card:hover { border-color: var(--purple); }
+.qcard.purple-card:hover::before { background: var(--purple-dim); }
+
+.qcard.locked-card { opacity: 0.5; cursor: not-allowed; }
+.qcard.locked-card:hover { transform: none; border-color: var(--border); }
+
+.qcard-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem;
+  background: var(--cyan-dim);
+  border: 1px solid var(--border2);
+}
+
+.qcard.purple-card .qcard-icon { background: var(--purple-dim); border-color: rgba(168,85,247,0.3); }
+
+.qcard-title {
+  font-size: 0.78rem; font-weight: 800;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--text);
+}
+
+.qcard-sub {
+  font-size: 0.7rem; color: var(--text3); line-height: 1.3;
+}
+
+.qcard-unlock {
+  font-size: 0.67rem; color: var(--red);
+  font-weight: 700; letter-spacing: 1px;
+}
+
+/* Mission area */
+.missions-panel {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  flex: 1;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+
+.missions-tabs {
+  display: flex; gap: 0;
+  border-bottom: 1px solid var(--border);
+  padding: 0 1.2rem;
+}
+
+.mtab {
+  padding: 0.85rem 1rem 0.7rem;
+  font-size: 0.78rem; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--text3);
+  cursor: pointer; transition: all 0.2s;
+  border-bottom: 2px solid transparent;
+  display: flex; align-items: center; gap: 0.5rem;
+  margin-bottom: -1px;
+}
+
+.mtab.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+.mtab:hover:not(.active) { color: var(--text2); }
+
+.mtab-icon { font-size: 0.9rem; }
+
+.missions-list { flex: 1; overflow-y: auto; padding: 0.5rem 0; }
+
+.mrow {
+  display: flex; align-items: center;
+  padding: 0.8rem 1.2rem;
+  cursor: pointer; transition: background 0.15s;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  gap: 1rem;
+}
+
+.mrow:hover:not(.mrow-locked) { background: var(--cyan-glow); }
+
+.mrow-locked { opacity: 0.45; cursor: not-allowed; }
+
+.mrow-info { flex: 1; }
+.mrow-name { font-weight: 700; font-size: 0.9rem; color: var(--text); margin-bottom: 2px; }
+.mrow-name.dlc-name { color: var(--gold); }
+.mrow-name.classified-name { color: var(--red); }
+
+.mrow-meta {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.72rem; color: var(--text3);
+}
+
+.diff-badge {
+  padding: 1px 7px; border-radius: 4px;
+  font-size: 0.65rem; font-weight: 800; letter-spacing: 1px;
+}
+
+.diff-easy   { background: var(--green-dim); color: var(--green); }
+.diff-normal { background: var(--cyan-dim);  color: var(--cyan); }
+.diff-hard   { background: var(--gold-dim);  color: var(--gold); }
+.diff-expert { background: var(--red-dim);   color: var(--red); }
+.diff-legend { background: var(--purple-dim); color: var(--purple); }
+
+.mrow-right { display: flex; align-items: center; gap: 0.6rem; }
+.mrow-xp { font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; color: var(--gold); }
+
+.lock-icon2 { font-size: 0.9rem; color: var(--text3); }
+.check-icon { font-size: 0.9rem; color: var(--green); }
+
+/* ── RIGHT PANEL ── */
+.rp-section { }
+.rp-label {
+  font-size: 0.65rem; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text3);
+  display: flex; align-items: center; gap: 0.5rem;
+  margin-bottom: 0.7rem;
+}
+.rp-label::before {
+  content: ''; display: block;
+  width: 3px; height: 12px;
+  background: var(--cyan); border-radius: 2px;
+}
+
+.sub-select {
+  width: 100%;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  color: var(--text);
+  font-family: 'Exo 2', sans-serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+  margin-bottom: 0.8rem;
+}
+.sub-select:focus { outline: none; border-color: var(--cyan); }
+
+.sub-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 0.8rem;
+}
+
+.sub-card-img {
+  width: 100%; height: 100px;
+  background: linear-gradient(135deg, var(--bg3), var(--bg4));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 3rem;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+
+.sub-card-img .sub-silhouette {
+  font-size: 4rem; filter: drop-shadow(0 0 12px rgba(0,212,255,0.3));
+}
+
+.sub-card-name {
+  padding: 0.6rem 0.8rem 0.3rem;
+  font-weight: 800; font-size: 0.95rem;
+  color: var(--text);
+}
+
+.sub-card-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 0.5rem; padding: 0.3rem 0.8rem 0.8rem;
+}
+
+.sub-stat {
+  background: var(--bg3);
+  border-radius: 6px; padding: 0.45rem 0.6rem;
+}
+.sub-stat-label { font-size: 0.62rem; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 1px; }
+.sub-stat-val { font-size: 0.82rem; font-weight: 700; color: var(--text); }
+
+.sub-stat.full { grid-column: span 2; }
+.sub-stat-val.small { font-size: 0.75rem; color: var(--text2); font-weight: 400; }
+
+/* Theme home grid */
+.theme-home-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;
+}
+
+.th-item {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem;
+  cursor: pointer; transition: all 0.2s;
+  text-align: center;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 0.3rem;
+}
+.th-item:hover:not(.th-locked) { border-color: var(--cyan); }
+.th-item.th-active { border-color: var(--cyan); background: var(--cyan-dim); }
+.th-item.th-locked { opacity: 0.45; cursor: not-allowed; }
+
+.th-emoji { font-size: 1.3rem; }
+.th-name { font-size: 0.67rem; font-weight: 700; color: var(--text2); letter-spacing: 1px; text-transform: uppercase; }
+
+/* XP bar */
+.xp-strip {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.7rem 0.8rem;
+}
+.xp-row { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text2); margin-bottom: 0.4rem; }
+.xp-row span:first-child { font-weight: 800; color: var(--text); }
+.xp-bar-bg { height: 5px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+.xp-bar-fill { height: 100%; background: linear-gradient(90deg, var(--cyan), var(--cyan2)); border-radius: 3px; transition: width 0.6s ease; }
+
+/* server toggle */
+.owner-bar {
+  background: rgba(255,64,64,0.06);
+  border: 1px solid rgba(255,64,64,0.2);
+  border-radius: var(--radius);
+  padding: 0.7rem 1.2rem;
+  display: flex; align-items: center; justify-content: space-between;
+  margin: 0 1.5rem 0.8rem;
+}
+.owner-label { font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase; color: #ff6b6b; }
+.owner-status { font-size: 0.82rem; font-weight: 700; }
+.status-on { color: var(--cyan); }
+.status-off { color: var(--red); }
+
+.tog {
+  width: 44px; height: 22px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 11px;
+  cursor: pointer; position: relative; transition: all 0.3s;
+}
+.tog.on { background: rgba(0,212,255,0.25); border-color: var(--cyan); }
+.tog-dot {
+  width: 16px; height: 16px;
+  background: var(--text3);
+  border-radius: 50%;
+  position: absolute; top: 2px; left: 3px;
+  transition: all 0.3s;
+}
+.tog.on .tog-dot { left: calc(100% - 19px); background: var(--cyan); }
+
+/* ══════════════════════════════
+   MAP THEMES GRID (big)
+══════════════════════════════ */
+.map-themes-big {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem;
+}
+
+.mtbig {
+  border-radius: 8px;
+  padding: 0.75rem 0.8rem;
+  cursor: pointer; transition: all 0.2s;
+  text-align: center;
+  font-size: 0.72rem; font-weight: 800;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  border: 2px solid transparent;
+  min-height: 60px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+
+.mtbig:hover:not(.mt-locked) { transform: scale(1.02); }
+.mtbig.mt-active { border-width: 2px; }
+.mt-active-badge {
+  position: absolute; top: 3px; right: 3px;
+  background: var(--green);
+  color: var(--bg0); font-size: 0.55rem;
+  font-weight: 900; letter-spacing: 1px;
+  padding: 1px 5px; border-radius: 4px;
+}
+.mt-locked { opacity: 0.4; cursor: not-allowed; }
+
+/* ══════════════════════════════
+   GAME SCREEN
+══════════════════════════════ */
+#screen-game .topbar-extra {
+  font-size: 0.75rem; color: var(--text3);
+  letter-spacing: 1px; font-weight: 600;
+}
+
+.game-layout {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr auto;
+  gap: 1.2rem;
+  padding: 1.2rem 1.5rem;
+  align-items: start;
+}
+
+.grid-panel { display: flex; flex-direction: column; gap: 0.6rem; }
+
+.grid-panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.grid-panel-title {
+  font-size: 0.68rem; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text3);
+  display: flex; align-items: center; gap: 0.5rem;
+}
+
+.grid-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--cyan);
+}
+
+.zoom-row { display: flex; align-items: center; gap: 0.4rem; }
+.zoom-btn2 {
+  width: 26px; height: 26px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--cyan); font-size: 0.9rem;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.zoom-btn2:hover { background: var(--cyan-dim); }
+.zoom-val2 {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem; color: var(--text2); min-width: 32px; text-align: center;
+}
+
+.grid-scaler { transition: transform 0.2s; transform-origin: top left; }
+
+.grid-wrap2 {
+  display: inline-flex; flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bg1);
+}
+
+.gh-row { display: flex; }
+.gh-corner { width: 26px; height: 24px; background: var(--bg2); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.gh-cell {
+  width: 34px; height: 24px;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem; color: var(--text3);
+}
+.gr-header {
+  width: 26px; height: 34px;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem; color: var(--text3);
+  flex-shrink: 0;
+}
+
+.gcell2 {
+  width: 34px; height: 34px;
+  border-right: 1px solid;
+  border-bottom: 1px solid;
+  cursor: pointer; transition: all 0.15s;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem;
+}
+
+.gcell2.c-ship { background: rgba(0,212,255,0.2) !important; }
+.gcell2.c-hit {
+  background: rgba(255,71,87,0.35) !important;
+  cursor: default;
+}
+.gcell2.c-hit::after { content: '✕'; color: #ff8090; font-weight: 900; font-size: 0.8rem; }
+.gcell2.c-miss { cursor: default; }
+.gcell2.c-miss::after { content: '·'; color: var(--text3); font-size: 1.4rem; }
+.gcell2.c-sunk { background: rgba(255,71,87,0.5) !important; }
+.gcell2.c-preview-ok { background: rgba(0,212,255,0.3) !important; }
+.gcell2.c-preview-bad { background: rgba(255,71,87,0.3) !important; }
+
+/* Game bottom */
+.game-bottom {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+}
+
+.log-panel2 {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.8rem 1rem;
+}
+
+.log-title2 {
+  font-size: 0.65rem; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text3);
+  margin-bottom: 0.6rem;
+  display: flex; align-items: center; gap: 0.4rem;
+}
+
+.log-title2::before {
+  content: ''; width: 3px; height: 10px;
+  background: var(--cyan); border-radius: 2px;
+}
+
+.log-entries { max-height: 100px; overflow-y: auto; }
+.log-e {
+  font-size: 0.78rem; padding: 0.18rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  font-family: 'Share Tech Mono', monospace;
+}
+.log-e.le-hit { color: var(--red); }
+.log-e.le-miss { color: var(--text3); }
+.log-e.le-sunk { color: var(--gold); font-weight: 700; }
+.log-e.le-sys { color: var(--cyan); }
+.log-e.le-lvl { color: var(--green); font-weight: 700; }
+
+.fleet-panel2 {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.8rem 1rem;
+}
+
+.ship-row2 {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 0.3rem 0;
+  font-size: 0.8rem;
+}
+.ship-row2.sunk2 .sn2 { color: var(--text3); text-decoration: line-through; }
+
+.sn2 { color: var(--text); font-weight: 600; }
+.dots2 { display: flex; gap: 3px; }
+.dot2 { width: 8px; height: 8px; border-radius: 50%; background: var(--cyan); transition: background 0.3s; }
+.dot2.dmg { background: var(--red); }
+.dot2.gone { background: var(--bg3); }
+
+/* Placement bar */
+.placement-bar2 {
+  display: flex; align-items: center; gap: 0.8rem;
+  padding: 0.7rem 1.5rem;
+  background: var(--bg1);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.ship-pill {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.78rem; font-weight: 700;
+  cursor: pointer; transition: all 0.2s; color: var(--text2);
+}
+.ship-pill:hover { border-color: var(--cyan); color: var(--text); }
+.ship-pill.sp-active { border-color: var(--cyan); background: var(--cyan-dim); color: var(--cyan); }
+.ship-pill.sp-placed { opacity: 0.35; cursor: not-allowed; }
+
+.rot-pill {
+  background: var(--gold-dim);
+  border: 1px solid rgba(255,192,72,0.3);
+  border-radius: 6px;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.78rem; font-weight: 700;
+  color: var(--gold); cursor: pointer;
+}
+.rot-pill:hover { background: rgba(255,192,72,0.2); }
+
+.rnd-pill {
+  background: var(--purple-dim);
+  border: 1px solid rgba(168,85,247,0.3);
+  border-radius: 6px;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.78rem; font-weight: 700;
+  color: var(--purple); cursor: pointer;
+}
+.rnd-pill:hover { background: rgba(168,85,247,0.2); }
+
+.start-pill {
+  background: var(--green-dim);
+  border: 1px solid rgba(46,213,115,0.4);
+  border-radius: 6px;
+  padding: 0.35rem 1rem;
+  font-size: 0.78rem; font-weight: 800;
+  color: var(--green); cursor: pointer;
+  letter-spacing: 1px;
+  display: none;
+}
+.start-pill:hover { background: rgba(46,213,115,0.2); }
+
+.phase-tag {
+  font-size: 0.7rem; letter-spacing: 1.5px;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+  border-radius: 5px;
+  text-transform: uppercase;
+}
+.phase-place { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(255,192,72,0.3); }
+.phase-battle { background: var(--red-dim); color: var(--red); border: 1px solid rgba(255,71,87,0.3); }
+.phase-win { background: var(--green-dim); color: var(--green); border: 1px solid rgba(46,213,115,0.3); }
+
+/* ══════════════════════════════
+   WIN OVERLAY
+══════════════════════════════ */
+#win-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.88);
+  z-index: 900;
+  flex-direction: column;
+  align-items: center; justify-content: center;
+}
+#win-overlay.show { display: flex; }
+
+.win-text2 {
+  font-family: 'Exo 2', sans-serif;
+  font-size: 7rem; font-weight: 900;
+  color: #fff;
+  -webkit-text-stroke: 4px var(--red);
+  text-shadow: 0 0 80px rgba(255,71,87,0.5);
+  animation: wPulse 0.9s ease infinite alternate;
+  letter-spacing: 6px; line-height: 1;
+}
+@keyframes wPulse { from { transform: scale(1); } to { transform: scale(1.04); } }
+
+.win-xp2 {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1.3rem; color: var(--gold);
+  margin-top: 0.8rem; letter-spacing: 3px;
+}
+
+.win-cta {
+  margin-top: 2rem;
+  background: var(--red);
+  color: #fff; border: none;
+  border-radius: 10px;
+  padding: 0.9rem 3rem;
+  font-family: 'Exo 2', sans-serif;
+  font-size: 1rem; font-weight: 800;
+  cursor: pointer; letter-spacing: 2px;
+  transition: all 0.25s;
+}
+.win-cta:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(255,71,87,0.5); }
+
+#confetti-box {
+  position: absolute; inset: 0;
+  pointer-events: none; overflow: hidden;
+}
+.cf {
+  position: absolute;
+  width: 10px; height: 14px;
+  border-radius: 2px;
+  top: -20px;
+  animation: cfFall linear forwards;
+}
+@keyframes cfFall { to { transform: translateY(110vh) rotate(760deg); opacity: 0; } }
+
+/* ══════════════════════════════
+   ENCYCLOPEDIA SCREEN
+══════════════════════════════ */
+.enc-layout {
+  flex: 1; display: grid;
+  grid-template-columns: 260px 1fr;
+  overflow: hidden;
+}
+
+.enc-sidebar {
+  border-right: 1px solid var(--border);
+  overflow-y: auto; padding: 0.8rem;
+}
+
+.enc-row {
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px; cursor: pointer;
+  transition: all 0.15s; margin-bottom: 2px;
+  border: 1px solid transparent;
+}
+.enc-row:hover { background: var(--cyan-glow); border-color: var(--border); }
+.enc-row.active { background: var(--cyan-dim); border-color: var(--border2); }
+.enc-rname { font-weight: 700; font-size: 0.88rem; }
+.enc-rmeta { font-size: 0.72rem; color: var(--text3); margin-top: 1px; }
+.f-tag {
+  display: inline-block;
+  background: var(--gold-dim); border: 1px solid rgba(255,192,72,0.3);
+  color: var(--gold); border-radius: 3px;
+  padding: 0px 4px; font-size: 0.6rem; font-weight: 800; letter-spacing: 1px;
+  margin-left: 4px;
+}
+
+.enc-main { padding: 2rem; overflow-y: auto; }
+.enc-sub-name {
+  font-size: 2rem; font-weight: 900;
+  color: var(--text); margin-bottom: 0.2rem;
+}
+.enc-sub-class {
+  font-size: 0.8rem; letter-spacing: 2px; color: var(--text3);
+  text-transform: uppercase; margin-bottom: 1.5rem;
+}
+.enc-stats {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 0.6rem; margin-bottom: 1.5rem;
+}
+.enc-stat {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 0.7rem;
+}
+.enc-sv { font-size: 1rem; font-weight: 800; color: var(--cyan); margin-bottom: 2px; }
+.enc-sl { font-size: 0.65rem; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; }
+.enc-sect { font-size: 0.65rem; letter-spacing: 2px; color: var(--cyan); text-transform: uppercase; font-weight: 800; margin: 1rem 0 0.5rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border); }
+.enc-p { font-size: 0.88rem; color: var(--text2); line-height: 1.7; }
+
+/* ══════════════════════════════
+   COMMUNITY
+══════════════════════════════ */
+.comm-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 1.2rem; padding: 1.5rem; flex: 1; overflow-y: auto;
+}
+.comm-box {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  padding: 1.2rem;
+  display: flex; flex-direction: column;
+}
+.comm-box-title {
+  font-size: 0.7rem; letter-spacing: 2px; font-weight: 800;
+  text-transform: uppercase; color: var(--text3);
+  margin-bottom: 1rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.comm-box-title::before { content: ''; width: 3px; height: 10px; background: var(--cyan); border-radius: 2px; }
+
+.msg-scroll { flex: 1; overflow-y: auto; max-height: 220px; margin-bottom: 0.8rem; }
+.msg-item { padding: 0.45rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.msg-author { font-size: 0.8rem; font-weight: 800; color: var(--cyan); }
+.msg-author.ow { color: var(--gold); }
+.msg-text2 { font-size: 0.82rem; color: var(--text); margin-top: 1px; }
+.msg-time2 { font-size: 0.68rem; color: var(--text3); }
+
+.msg-row { display: flex; gap: 0.5rem; }
+.msg-input2 {
+  flex: 1; background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 7px; padding: 0.55rem 0.8rem;
+  color: var(--text); font-family: 'Exo 2', sans-serif;
+  font-size: 0.88rem;
+}
+.msg-input2:focus { outline: none; border-color: var(--cyan); }
+.msg-send {
+  background: var(--cyan); color: var(--bg0);
+  border: none; border-radius: 7px;
+  padding: 0.55rem 1rem;
+  font-weight: 800; cursor: pointer; transition: all 0.2s;
+}
+.msg-send:hover { background: #00eaff; }
+
+.board-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.4rem 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.board-rank { font-family: 'Share Tech Mono', monospace; font-size: 0.72rem; color: var(--text3); min-width: 24px; }
+.board-name { font-weight: 700; font-size: 0.85rem; }
+.board-xp { font-family: 'Share Tech Mono', monospace; font-size: 0.78rem; color: var(--gold); }
+
+.empty-state { color: var(--text3); font-size: 0.82rem; text-align: center; padding: 1.5rem; font-style: italic; }
+
+/* ══════════════════════════════
+   MAP ARCHITECT SCREEN
+══════════════════════════════ */
+.architect-layout {
+  flex: 1; display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem; padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.arch-panel {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  padding: 1.5rem;
+}
+
+.arch-title {
+  display: flex; align-items: center; gap: 0.7rem;
+  font-size: 1.2rem; font-weight: 800; margin-bottom: 1.5rem;
+}
+
+.arch-section-label {
+  font-size: 0.65rem; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text3);
+  display: flex; align-items: center; gap: 0.5rem;
+  margin-bottom: 0.7rem; margin-top: 1.2rem;
+}
+.arch-section-label svg { width: 12px; height: 12px; }
+
+.color-row { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; }
+.color-dot {
+  width: 26px; height: 26px; border-radius: 50%;
+  cursor: pointer; border: 2px solid transparent;
+  transition: all 0.2s; flex-shrink: 0;
+}
+.color-dot:hover { transform: scale(1.2); }
+.color-dot.selected { border-color: #fff; box-shadow: 0 0 0 2px var(--cyan); }
+.color-dot.custom { border-radius: 5px; background: var(--bg3) !important; border: 1px solid var(--border2); font-size: 0.7rem; display: flex; align-items: center; justify-content: center; color: var(--text3); }
+
+.grid-toggle { display: flex; gap: 0.4rem; }
+.gtog {
+  padding: 0.4rem 0.9rem;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 6px; font-size: 0.78rem; font-weight: 700;
+  cursor: pointer; color: var(--text2); transition: all 0.2s;
+}
+.gtog:hover { border-color: var(--cyan); }
+.gtog.active { background: var(--cyan-dim); border-color: var(--cyan); color: var(--cyan); }
+
+.audio-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; }
+.ao {
+  padding: 0.5rem 0.8rem;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 7px; font-size: 0.78rem; font-weight: 700;
+  cursor: pointer; color: var(--text2); transition: all 0.2s;
+  display: flex; align-items: center; gap: 0.4rem;
+}
+.ao:hover { border-color: var(--cyan); }
+.ao.active { background: var(--cyan-dim); border-color: var(--cyan); color: var(--cyan); }
+.ao.inactive { border-color: rgba(255,71,87,0.3); background: var(--red-dim); color: var(--red); }
+
+.arch-preview-panel {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  padding: 1.5rem;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 1rem;
+}
+
+.preview-label { font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); }
+
+.mini-grid-preview {
+  display: grid; grid-template-columns: repeat(6, 1fr);
+  gap: 3px; width: 200px;
+}
+.mg-cell {
+  width: 100%; aspect-ratio: 1;
+  border-radius: 3px;
+  border: 1px solid;
+  transition: all 0.3s;
+}
+
+.arch-name-input {
+  width: 100%;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 0.65rem 0.9rem;
+  color: var(--text); font-family: 'Exo 2', sans-serif;
+  font-size: 0.95rem;
+}
+.arch-name-input:focus { outline: none; border-color: var(--cyan); }
+
+.preview-map-name {
+  font-size: 1.2rem; font-weight: 800; transition: color 0.3s;
+}
+.preview-map-meta { font-size: 0.72rem; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; }
+
+.arch-btns { display: flex; gap: 0.6rem; margin-top: auto; }
+.arch-cancel {
+  flex: 1; background: transparent;
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 0.7rem; font-family: 'Exo 2', sans-serif;
+  font-size: 0.85rem; font-weight: 700;
+  color: var(--text2); cursor: pointer; transition: all 0.2s;
+  letter-spacing: 1px;
+}
+.arch-cancel:hover { border-color: var(--text2); }
+.arch-save {
+  flex: 2; background: var(--cyan);
+  border: none; border-radius: 8px;
+  padding: 0.7rem; font-family: 'Exo 2', sans-serif;
+  font-size: 0.85rem; font-weight: 800;
+  color: var(--bg0); cursor: pointer; transition: all 0.2s;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+}
+.arch-save:hover { background: #00eaff; box-shadow: 0 0 20px rgba(0,212,255,0.3); }
+
+/* ══════════════════════════════
+   CUSTOMIZATION SCREEN
+══════════════════════════════ */
+.custom-layout {
+  flex: 1; display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem; padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.cust-section {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  padding: 1.2rem;
+}
+
+.cust-title {
+  font-size: 0.68rem; letter-spacing: 2px;
+  text-transform: uppercase; font-weight: 800;
+  color: var(--text3); margin-bottom: 1rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.cust-title::before { content: ''; width: 3px; height: 10px; background: var(--cyan); border-radius: 2px; }
+
+.bg-grid2 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
+.bgc2 {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 0.7rem 0.4rem;
+  cursor: pointer; text-align: center;
+  transition: all 0.2s; position: relative; overflow: hidden;
+}
+.bgc2:hover:not(.bgc-locked) { border-color: var(--cyan); }
+.bgc2.bgc-active { border-color: var(--cyan); background: var(--cyan-dim); }
+.bgc2.bgc-locked { opacity: 0.45; cursor: not-allowed; }
+.bgc2-prev { font-size: 1.5rem; margin-bottom: 0.3rem; display: block; }
+.bgc2-name { font-size: 0.65rem; font-weight: 800; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+.bgc2-xp { font-size: 0.6rem; color: var(--text3); }
+
+.lock-ovl {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.5); border-radius: 7px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 2px;
+}
+.lock-ovl-icon { font-size: 0.9rem; }
+.lock-ovl-xp { font-size: 0.6rem; color: var(--red); font-weight: 800; }
+
+.skin-grid2 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; }
+.skc {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 0.6rem 0.4rem;
+  cursor: pointer; text-align: center;
+  transition: all 0.2s; position: relative; overflow: hidden;
+}
+.skc:hover:not(.skc-locked) { border-color: var(--cyan); }
+.skc.skc-active { border-color: var(--gold); background: var(--gold-dim); }
+.skc.skc-locked { opacity: 0.45; cursor: not-allowed; }
+.skc-icon { font-size: 1.6rem; margin-bottom: 0.2rem; }
+.skc-name { font-size: 0.62rem; font-weight: 700; color: var(--text2); }
+.skc-xp { font-size: 0.58rem; color: var(--text3); }
+
+/* ══════════════════════════════
+   SINKING EFFECTS (right panel)
+══════════════════════════════ */
+.sink-effects-list { display: flex; flex-direction: column; gap: 0.4rem; }
+.se-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.5rem 0.7rem;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 7px; cursor: pointer; transition: all 0.2s;
+}
+.se-row:hover { border-color: var(--cyan); }
+.se-row.se-active { border-color: var(--cyan); background: var(--cyan-dim); }
+.se-left { display: flex; align-items: center; gap: 0.5rem; }
+.se-dot { width: 10px; height: 10px; border-radius: 50%; }
+.se-name { font-size: 0.82rem; font-weight: 700; }
+.se-badge {
+  font-size: 0.65rem; font-weight: 800;
+  padding: 2px 7px; border-radius: 4px;
+  background: var(--green-dim); color: var(--green);
+  letter-spacing: 1px;
+}
+
+/* ══════════════════════════════
+   SCROLLBAR
+══════════════════════════════ */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.25); border-radius: 3px; }
+
+/* ══════════════════════════════
+   NOTIFICATION
+══════════════════════════════ */
+#notif {
+  position: fixed; top: 62px; right: 16px;
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 10px; padding: 0.7rem 1.1rem;
+  font-size: 0.85rem; font-weight: 600; color: var(--cyan);
+  z-index: 2000;
+  transform: translateX(120%); transition: transform 0.3s;
+  max-width: 280px; backdrop-filter: blur(10px);
+}
+#notif.show { transform: translateX(0); }
+#notif.n-err { border-color: rgba(255,71,87,0.4); color: var(--red); background: rgba(6,12,20,0.95); }
+#notif.n-ok  { border-color: rgba(46,213,115,0.4); color: var(--green); background: rgba(6,12,20,0.95); }
+
+/* back btn */
+.back-pill {
+  background: transparent; border: 1px solid var(--border);
+  border-radius: 7px; padding: 0.3rem 0.7rem;
+  color: var(--text2); font-family: 'Exo 2', sans-serif;
+  font-size: 0.8rem; font-weight: 700; cursor: pointer;
+  transition: all 0.2s; letter-spacing: 0.5px;
+}
+.back-pill:hover { border-color: var(--cyan); color: var(--cyan); }
+
+/* Multiplayer / Community top cards */
+.big-cards {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 1rem; padding: 1.5rem 1.5rem 0;
+}
+
+.big-card {
+  background: var(--bg1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  padding: 1.2rem 1.5rem;
+  cursor: pointer; transition: all 0.25s;
+  display: flex; flex-direction: column;
+}
+.big-card:hover { border-color: var(--cyan); transform: translateY(-2px); }
+
+.bc-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
+.bc-title { font-size: 0.85rem; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; }
+.bc-sub { font-size: 0.75rem; color: var(--text3); margin-top: 0.3rem; }
+.bc-status { display: flex; align-items: center; gap: 0.4rem; margin-top: 0.5rem; }
+.online-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green); }
+.bc-status-text { font-size: 0.72rem; font-weight: 800; color: var(--green); letter-spacing: 1px; }
+
+</style>
+</head>
+<body>
+
+<canvas id="bgc"></canvas>
+<div id="notif"></div>
+
+<div id="app">
+
+<!-- WIN OVERLAY -->
+<div id="win-overlay">
+  <div id="confetti-box"></div>
+  <div class="win-text2">YOU WIN!</div>
+  <div class="win-xp2" id="win-xp-label">+500 XP GUADAGNATI</div>
+  <button class="win-cta" onclick="closeWin()">CONTINUA →</button>
+</div>
+
+<!-- ════════════ LOGIN ════════════ -->
+<div id="screen-login" class="screen active">
+  <div class="auth-modal">
+    <div class="auth-header">
+      <div class="auth-lock-icon">🔒</div>
+      <div class="auth-title">Accesso</div>
+    </div>
+    <div class="auth-notice">Accesso sicuro: tutti gli utenti devono fornire credenziali valide.</div>
+
+    <div class="field-label">Email</div>
+    <div class="field-wrap">
+      <span class="field-icon">✉</span>
+      <input class="field-input" id="li-email" type="email" placeholder="nome@esempio.com" oninput="checkOwnerEmail()" />
+    </div>
+
+    <div id="pwd-field">
+      <div class="field-label">Password</div>
+      <div class="field-wrap">
+        <span class="field-icon">🔑</span>
+        <input class="field-input" id="li-pwd" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" />
+      </div>
+    </div>
+
+    <div class="auth-error" id="li-err"></div>
+    <button class="auth-btn" onclick="doLogin()">→ ENTRA</button>
+    <div class="auth-link">Non hai un account? <a onclick="goRegister()">CREA ACCOUNT</a></div>
+  </div>
+</div>
+
+<!-- ════════════ REGISTER ════════════ -->
+<div id="screen-register" class="screen">
+  <div class="auth-modal">
+    <div class="auth-header">
+      <div class="auth-lock-icon">⚓</div>
+      <div class="auth-title">Crea Account</div>
+    </div>
+    <div class="auth-notice">Registrati per accedere alle partite online e salvare i tuoi progressi.</div>
+
+    <div class="field-label">Nome Capitano</div>
+    <div class="field-wrap">
+      <span class="field-icon">👤</span>
+      <input class="field-input" id="rg-name" type="text" placeholder="Il tuo nome" />
+    </div>
+
+    <div class="field-label">Email</div>
+    <div class="field-wrap">
+      <span class="field-icon">✉</span>
+      <input class="field-input" id="rg-email" type="email" placeholder="nome@esempio.com" />
+    </div>
+
+    <div class="field-label">Password</div>
+    <div class="field-wrap">
+      <span class="field-icon">🔑</span>
+      <input class="field-input" id="rg-pwd" type="password" placeholder="Min. 6 caratteri" />
+    </div>
+
+    <div class="field-label">Conferma Password</div>
+    <div class="field-wrap">
+      <span class="field-icon">🔑</span>
+      <input class="field-input" id="rg-pwd2" type="password" placeholder="Ripeti password" />
+    </div>
+
+    <div class="auth-error" id="rg-err"></div>
+    <button class="auth-btn" onclick="doRegister()">→ REGISTRATI</button>
+    <div class="auth-link"><a onclick="goLogin()">← Torna al login</a></div>
+  </div>
+</div>
+
+<!-- ════════════ MENU ════════════ -->
+<div id="screen-menu" class="screen">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-anchor">⚓</div>
+    <div class="topbar-logo"><span>SUB</span><span>ULTIMATE</span></div>
+
+    <div class="topbar-mid">
+      <button class="audio-btn muted" title="Mute/Unmute">🔇</button>
+      <button class="audio-btn" title="Musica">🎵</button>
+      <button class="audio-btn" title="Volume">🔊</button>
+    </div>
+
+    <div class="topbar-right">
+      <div id="honor-pill" style="display:none" class="honor-pill">⭐ HONOR ADMIN</div>
+      <div class="lvl-badge" id="hdr-lvl">LVL 1</div>
+      <div class="user-pill" onclick="doLogout()">
+        <div class="user-avatar" id="hdr-avatar">?</div>
+        <div class="user-info">
+          <div class="user-name" id="hdr-name">OSPITE</div>
+          <div class="user-sub" id="hdr-sub">Accedi per salvare</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OWNER SERVER BAR -->
+  <div id="owner-bar" class="owner-bar" style="display:none">
+    <div>
+      <div class="owner-label">🔴 Pannello Owner — Controllo Server</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:0.8rem">
+      <span class="owner-status">Server: <span id="srv-txt" class="status-off">OFFLINE</span></span>
+      <div class="tog" id="srv-tog" onclick="toggleServer()"><div class="tog-dot"></div></div>
+    </div>
+  </div>
+
+  <div class="menu-body">
+    <!-- LEFT -->
+    <div class="menu-left">
+      <!-- XP strip -->
+      <div class="xp-strip">
+        <div class="xp-row">
+          <span id="xp-name">Capitano</span>
+          <span id="xp-val">0 / 350 XP</span>
+        </div>
+        <div class="xp-bar-bg">
+          <div class="xp-bar-fill" id="xp-fill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <!-- Quick cards -->
+      <div class="quickcards">
+        <div class="qcard" onclick="startQuick()">
+          <div class="qcard-icon">⚔️</div>
+          <div class="qcard-title">Gioco Rapido</div>
+          <div class="qcard-sub">Sfida l'AI classica</div>
+        </div>
+        <div class="qcard purple-card" onclick="goArchitect()">
+          <div class="qcard-icon" style="background:var(--purple-dim);border-color:rgba(168,85,247,0.3)">🗺️</div>
+          <div class="qcard-title">Map Architect</div>
+          <div class="qcard-sub">Crea mappe personalizzate</div>
+        </div>
+        <div class="qcard" id="card-train" onclick="goTraining()">
+          <div class="qcard-icon">🎯</div>
+          <div class="qcard-title">Addestramento</div>
+          <div class="qcard-sub" id="train-sub">Vinci 1 partita</div>
+          <div class="qcard-unlock" id="train-lock" style="display:none">🔒 BLOCCATO</div>
+        </div>
+      </div>
+
+      <!-- Missions panel -->
+      <div class="missions-panel">
+        <div class="missions-tabs">
+          <div class="mtab active" onclick="switchTab('campagna',this)">
+            <span class="mtab-icon">🏆</span> Campagna
+          </div>
+          <div class="mtab" onclick="switchTab('dlc',this)">
+            <span class="mtab-icon">⭐</span> DLC
+          </div>
+          <div class="mtab" onclick="switchTab('classified',this)">
+            <span class="mtab-icon">🔒</span> Classified
+          </div>
+        </div>
+        <div class="missions-list" id="missions-list"></div>
+      </div>
+
+      <!-- Bottom nav -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.6rem">
+        <div class="qcard" onclick="goEnc()" style="flex-direction:row;padding:0.8rem 1rem;align-items:center;gap:0.6rem;text-align:left">
+          <span style="font-size:1.3rem">📚</span>
+          <div><div class="qcard-title" style="font-size:0.72rem">Enciclopedia</div><div class="qcard-sub" style="font-size:0.67rem">30 sottomarini</div></div>
+        </div>
+        <div class="qcard" onclick="goCommunity()" style="flex-direction:row;padding:0.8rem 1rem;align-items:center;gap:0.6rem;text-align:left">
+          <span style="font-size:1.3rem">🌐</span>
+          <div><div class="qcard-title" style="font-size:0.72rem">Community</div><div class="qcard-sub" style="font-size:0.67rem">Chat & Mappe</div></div>
+        </div>
+        <div class="qcard" onclick="goCustom()" style="flex-direction:row;padding:0.8rem 1rem;align-items:center;gap:0.6rem;text-align:left">
+          <span style="font-size:1.3rem">🎨</span>
+          <div><div class="qcard-title" style="font-size:0.72rem">Personalizza</div><div class="qcard-sub" style="font-size:0.67rem">Temi & Skin</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="menu-right">
+      <!-- Sub attivo -->
+      <div class="rp-section">
+        <div class="rp-label">Sottomarino Attivo</div>
+        <select class="sub-select" id="sub-select" onchange="updateSubCard()"></select>
+        <div class="sub-card" id="sub-card">
+          <div class="sub-card-img" id="sc-img"></div>
+          <div class="sub-card-name" id="sc-name">U-Boot Tipo VII</div>
+          <div class="sub-card-grid">
+            <div class="sub-stat"><div class="sub-stat-label">Anno</div><div class="sub-stat-val" id="sc-year">1936</div></div>
+            <div class="sub-stat"><div class="sub-stat-label">Cantiere</div><div class="sub-stat-val" id="sc-nation">Germania</div></div>
+            <div class="sub-stat full"><div class="sub-stat-label">Ruolo Operativo</div><div class="sub-stat-val small" id="sc-role">Attacco / Interdizione</div></div>
+            <div class="sub-stat full"><div class="sub-stat-label">Note</div><div class="sub-stat-val small" id="sc-note">—</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Personalizzazione — Theme Home -->
+      <div class="rp-section">
+        <div class="rp-label">Sfondo Menu (Theme Home)</div>
+        <div class="theme-home-grid" id="theme-home-grid"></div>
+      </div>
+
+      <!-- Map Themes -->
+      <div class="rp-section">
+        <div class="rp-label">Tema Mappa (XP Locks)</div>
+        <div class="map-themes-big" id="map-themes-big"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ GAME ════════════ -->
+<div id="screen-game" class="screen">
+  <div class="topbar">
+    <div class="topbar-anchor">⚓</div>
+    <div class="topbar-logo"><span>SUB</span><span>ULTIMATE</span></div>
+    <div class="topbar-mid">
+      <span class="topbar-extra" id="game-mode-lbl">GIOCO RAPIDO</span>
+      <span class="phase-tag phase-place" id="phase-tag">POSIZIONAMENTO</span>
+    </div>
+    <div class="topbar-right">
+      <button class="back-pill" onclick="confirmBack()">← MENU</button>
+    </div>
+  </div>
+
+  <div class="placement-bar2" id="plc-bar">
+    <div id="ship-pills"></div>
+    <div style="width:1px;height:20px;background:var(--border);margin:0 0.3rem"></div>
+    <button class="rot-pill" onclick="rotateShip()">↻ <span id="orient-lbl">ORIZ.</span></button>
+    <button class="rnd-pill" onclick="randomPlace()">🎲 CASUALE</button>
+    <button class="start-pill" id="start-btn" onclick="beginBattle()">▶ INIZIA</button>
+  </div>
+
+  <div class="game-layout">
+    <!-- Player grid -->
+    <div class="grid-panel">
+      <div class="grid-panel-header">
+        <div class="grid-panel-title"><div class="grid-dot"></div> LA TUA FLOTTA</div>
+        <div class="zoom-row">
+          <button class="zoom-btn2" onclick="zoomChange(-0.15)">−</button>
+          <div class="zoom-val2" id="zm-val">1.0×</div>
+          <button class="zoom-btn2" onclick="zoomChange(0.15)">+</button>
+        </div>
+      </div>
+      <div style="overflow:hidden;border-radius:8px">
+        <div class="grid-scaler" id="pg-scale">
+          <div class="grid-wrap2" id="pgrid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Enemy grid -->
+    <div class="grid-panel">
+      <div class="grid-panel-header">
+        <div class="grid-panel-title"><div class="grid-dot" style="background:var(--red)"></div> FLOTTA NEMICA</div>
+      </div>
+      <div style="overflow:hidden;border-radius:8px">
+        <div class="grid-scaler" id="eg-scale">
+          <div class="grid-wrap2" id="egrid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom -->
+    <div class="game-bottom">
+      <div class="log-panel2">
+        <div class="log-title2">Registro di Bordo</div>
+        <div class="log-entries" id="clog"></div>
+      </div>
+      <div class="fleet-panel2">
+        <div class="log-title2">Stato Flotta Nemica</div>
+        <div id="fleet-status2"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ TRAINING ════════════ -->
+<div id="screen-training" class="screen">
+  <div class="topbar">
+    <div class="topbar-anchor">⚓</div>
+    <div class="topbar-logo"><span>SUB</span><span>ULTIMATE</span></div>
+    <div class="topbar-mid"></div>
+    <div class="topbar-right"><button class="back-pill" onclick="showScreen('menu')">← MENU</button></div>
+  </div>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1.5rem;padding:2rem;text-align:center">
+    <div style="font-size:4rem">🎯</div>
+    <div style="font-size:1.4rem;font-weight:900;letter-spacing:3px;text-transform:uppercase">AREA DI ADDESTRAMENTO</div>
+    <div style="color:var(--text2);max-width:480px;line-height:1.7;font-size:0.9rem">Esercitati contro un bersaglio passivo senza penalità di ranking. Perfeziona posizionamento e strategia d'attacco.</div>
+    <button class="auth-btn" style="max-width:280px;margin-top:0.5rem" onclick="launchTraining()">▶ INIZIA ADDESTRAMENTO</button>
+  </div>
+</div>
+
+<!-- ════════════ ENCYCLOPEDIA ════════════ -->
+<div id="screen-encyclopedia" class="screen">
+  <div class="topbar">
+    <div class="topbar-anchor">⚓</div>
+    <div class="topbar-logo"><span>SUB</span><span>ULTIMATE</span></div>
+    <div class="topbar-mid"></div>
+    <div class="topbar-right"><button class="back-pill" onclick="showScreen('menu')">← MENU</button></div>
+  </div>
+  <div class="enc-layout">
+    <div class="enc-sidebar" id="enc-list"></div>
+    <div class="enc-main" id="enc-main">
+      <div style="color:var(--text3);text-align:center;padding:3rem">Seleziona un sottomarino</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ COMMUNITY ════════════ -->
+<div id="screen-community" class="screen">
+  <div class="topbar">
+    <div class="topbar-anchor">⚓</div>
+    <div class="topbar-logo"><span>SUB</span><span>ULTIMATE</span></div>
+    <div class="topbar-mid"></div>
+    <div class="topbar-right"><button class="back-pill" onclick="showScreen('menu')">← MENU</button></div>
+  </div>
+  <div class="big-cards">
+    <div class="big-card">
+      <div class="bc-icon">👥</div>
+      <div class="bc-title">Multiplayer</div>
+      <div class="bc-sub">Partite competitive online</div>
+      <div class="bc-status"><div class="online-dot"></div><div class="bc-status-text">ONLINE</div></div>
+    </div>
+    <div class="big-card" onclick="">
+      <div class="bc-icon">🌐</div>
+      <div class="bc-title">Community Hub</div>
+      <div class="bc-sub">Chat · Video · Mappe</div>
+    </div>
+  </div>
+  <div class="comm-grid">
+    <div class="comm-box">
+      <div class="comm-box-title">💬 Messaggi Pubblici</div>
+      <div class="msg-scroll" id="msg-list">
+        <div class="empty-state">Nessun messaggio. Sii il primo!</div>
+      </div>
+      <div class="msg-row">
+        <input class="msg-input2" id="msg-in" placeholder="Scrivi un messaggio..." onkeydown="if(event.key==='Enter')sendMsg()" />
+        <button class="msg-send" onclick="sendMsg()">INVIA</button>
+      </div>
+    </div>
+
+    <div class="comm-box">
+      <div class="comm-box-title">🏆 Classifica Honor</div>
+      <div id="honor-board"></div>
+    </div>
+
+    <div class="comm-box">
+      <div class="comm-box-title">🗺️ Mappe Pubblicate</div>
+      <div id="maps-list"><div class="empty-state">Nessuna mappa ancora.</div></div>
+    </div>
+
+    <div class="comm-box">
+      <div class="comm-box-title">📹 Gruppi Video</div>
+      <div id="squads-list"><div class="empty-state">Nessun gruppo attivo.</div></div>
+      <button class="auth-btn" style="margin-top:auto;background:transparent;border:1px solid var(--border);color:var(--text2)" onclick="createSquad()">+ CREA GRUPPO</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ MAP ARCHITECT ════════════ -->
+<div id="screen-architect" class="screen">
+  <div class="topbar">
+    <div class="topbar-anchor">⚓</div>
+    <div class="topbar-logo"><span>SUB</span><span>ULTIMATE</span></div>
+    <div class="topbar-mid"></div>
+    <div class="topbar-right"><button class="back-pill" onclick="showScreen('menu')">← MENU</button></div>
+  </div>
+  <div class="architect-layout">
+    <div class="arch-panel">
+      <div class="arch-title">🗺️ Map Architect</div>
+
+      <div class="arch-section-label">Nome Operazione</div>
+      <input class="arch-name-input" id="arch-name" value="Nuova Mappa" oninput="updatePreview()" />
+
+      <div class="arch-section-label">🌊 Colore Oceano</div>
+      <div class="color-row" id="ocean-colors"></div>
+
+      <div class="arch-section-label">⊞ Colore Griglia</div>
+      <div class="grid-toggle">
+        <button class="gtog active" id="gtog-light" onclick="setGridMode('light')">Light</button>
+        <button class="gtog" id="gtog-dark" onclick="setGridMode('dark')">Dark</button>
+        <div class="color-dot" id="grid-custom-dot" style="border-radius:5px;width:26px;height:26px;background:var(--bg3);border:1px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:var(--text3)" title="Colore custom"></div>
+      </div>
+
+      <div class="arch-section-label">🎨 Colore Accento (HUD)</div>
+      <div class="color-row" id="accent-colors"></div>
+
+      <div class="arch-section-label">🎵 Audio Ambiente</div>
+      <div class="audio-opts" id="audio-opts"></div>
+    </div>
+
+    <div class="arch-preview-panel">
+      <div class="preview-label">Anteprima Live</div>
+      <div class="mini-grid-preview" id="mini-preview"></div>
+      <div class="preview-map-name" id="prev-name" style="color:var(--cyan)">Nuova Mappa</div>
+      <div class="preview-map-meta" id="prev-meta">THEME CONFIGURATION // OFF AUDIO</div>
+      <div style="flex:1"></div>
+      <div class="arch-btns" style="width:100%">
+        <button class="arch-cancel" onclick="showScreen('menu')">ANNULLA</button>
+        <button class="arch-save" onclick="saveMap()">💾 SALVA PROGETTO</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ CUSTOMIZATION ════════════ -->
+<div id="screen-custom" class="screen">
+  <div class="topbar">
+    <div class="topbar-anchor">⚓</div>
+    <div class="topbar-logo"><span>SUB</span><span>ULTIMATE</span></div>
+    <div class="topbar-mid"></div>
+    <div class="topbar-right"><button class="back-pill" onclick="showScreen('menu')">← MENU</button></div>
+  </div>
+  <div class="custom-layout">
+    <div class="cust-section">
+      <div class="cust-title">🌊 Sfondo Menu</div>
+      <div class="bg-grid2" id="bg-grid2"></div>
+    </div>
+    <div class="cust-section">
+      <div class="cust-title">🎨 Tema Mappa</div>
+      <div class="map-themes-big" id="map-themes-custom" style="margin-bottom:1.5rem"></div>
+      <div class="cust-title" style="margin-top:1rem">💥 Effetto Affondamento</div>
+      <div class="sink-effects-list" id="sink-effects"></div>
+    </div>
+    <div class="cust-section" style="grid-column:1/-1">
+      <div class="cust-title">🏅 Skin Sottomarino</div>
+      <div class="skin-grid2" id="skin-grid2"></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<script>
+// ══════════════════════════════════════
+// CONSTANTS
+// ══════════════════════════════════════
+const OWNER_EMAIL = 'command.override@sub-ultimate.com';
+
+const LEVEL_XP = [0,350,800,1400,2200,3200,4400,5800,7500,9500,12000,14800,18000,21500,25500,30000,35000,40500,46500,53000,60000,67500,75500,84000,93000,102500,112500,123000,134000,145500,157500,170000,183000,196500,210500,225000,240000,255500,271500,288000,305000,322500,340500,359000,378000,397500,417500,438000,459000,480500,502500,525000,548000,571500,595500,620000,645000,670500,696500,723000,750000,777500,805500,834000,863000,892500,922500,953000,984000,1015500,1047500,1080000,1113000,1146500,1180500,1215000,1250000,1285500,1321500,1358000,1395000,1432500,1470500,1509000,1548000,1587500,1627500,1668000,1709000,1750500,1792500,1835000,1878000,1921500,1965500,2010000,2055000,2100500,2146500,2193000,2240000];
+
+const BG_LIST = [
+  {id:'ocean',  name:'Oceano',  emoji:'🌊', xp:0,      colors:['#05243d','#010a14']},
+  {id:'storm',  name:'Tempesta',emoji:'⛈️', xp:100,    colors:['#0d0d1f','#050010']},
+  {id:'orbit',  name:'Orbita',  emoji:'🌌', xp:2500,   colors:['#0a0520','#000008']},
+  {id:'cyber',  name:'Cyber',   emoji:'💻', xp:7500,   colors:['#001a0d','#000008']},
+  {id:'aurora', name:'Aurora',  emoji:'🌅', xp:15000,  colors:['#1a0a00','#050005']},
+  {id:'magma',  name:'Magma',   emoji:'🌋', xp:30000,  colors:['#1a0400','#060000']},
+  {id:'abyss',  name:'Abisso',  emoji:'🕳️', xp:60000,  colors:['#000510','#000003']},
+  {id:'lusso',  name:'Lusso',   emoji:'✨', xp:100000, colors:['#1a1200','#050400']},
+];
+
+const MAP_THEMES_DATA = [
+  {id:'sonar',   name:'Sonar Classic',    xp:0,      cell:'#0d3352', border:'#1a5276', color:'#00d4ff'},
+  {id:'coastal', name:'Coastal Waters',   xp:100,    cell:'#0a3d2e', border:'#1a5e40', color:'#2ed573'},
+  {id:'arctic',  name:'Arctic Ice',       xp:10000,  cell:'#0f1f3d', border:'#1e3a6e', color:'#85c8ff'},
+  {id:'red',     name:'Red Alert',        xp:20000,  cell:'#3d0a0a', border:'#6b1a1a', color:'#ff4757'},
+  {id:'steam',   name:'Steam & Brass',    xp:30000,  cell:'#2d1f0a', border:'#6b4a1a', color:'#ffc048'},
+  {id:'digital', name:'Digital Warfare',  xp:40000,  cell:'#0a2d0a', border:'#1a6b1a', color:'#2ed573'},
+  {id:'lost',    name:'Lost City',        xp:50000,  cell:'#0a1a3d', border:'#1a336b', color:'#a855f7'},
+  {id:'gold',    name:'Deep Gold',        xp:75000,  cell:'#2d2000', border:'#6b4d00', color:'#ffd700'},
+  {id:'void',    name:'Void Walker',      xp:80000,  cell:'#1a0a3d', border:'#3d1a6b', color:'#c084fc'},
+  {id:'siren',   name:'Siren Call',       xp:90000,  cell:'#3d0020', border:'#6b0040', color:'#ff6eb4'},
+  {id:'xeno',    name:'Xenomorph',        xp:95000,  cell:'#0d1a0d', border:'#1a3d1a', color:'#39ff14'},
+  {id:'supreme', name:'Supreme Commander',xp:100000, cell:'#1a1a1a', border:'#444444', color:'#c0c0c0'},
+];
+
+const SINK_EFFECTS = [
+  {id:'standard', name:'Relitto Standard', color:'#7a9bb5'},
+  {id:'inferno',  name:'Inferno Fiammeggiante', color:'#ff6b35'},
+  {id:'radio',    name:'Scorie Radioattive', color:'#39ff14'},
+  {id:'spettro',  name:'Spettro Marino', color:'#e8f4fd'},
+  {id:'kraken',   name:'Abbraccio del Kraken', color:'#c084fc'},
+];
+
+const SKINS_DATA = [
+  {id:'std',    name:'Standard',   emoji:'🚢', xp:0},
+  {id:'stealth',name:'Stealth',    emoji:'⚫', xp:500},
+  {id:'gold',   name:'Dorato',     emoji:'🌟', xp:2000},
+  {id:'vet',    name:'Veterano',   emoji:'🎖️', xp:5000},
+  {id:'shadow', name:'Ombra',      emoji:'🌑', xp:10000},
+  {id:'cmd',    name:'Comandante', emoji:'👑', xp:20000},
+  {id:'adm',    name:'Ammiraglio', emoji:'⭐', xp:50000},
+  {id:'legend', name:'Leggenda',   emoji:'🏆', xp:100000},
+  {id:'phantom',name:'Fantasma',   emoji:'👻', xp:150000},
+  {id:'titan',  name:'Titano',     emoji:'💎', xp:200000},
+];
+
+const SUBS_DB = [
+  {id:'u7',    name:'U-Boot Tipo VII',    class:'Tipo VII-C',         nation:'Germania (Kriegsmarine)', year:'1940', len:'67m',  disp:'871t',  spd:'17.7kn', crew:'44',  real:true,  role:'Attacco / Interdizione', note:'Il cavallo da battaglia della Kriegsmarine. Dominatore dell\'Atlantico (1939-1945).', desc:'L\'U-Boot Tipo VII fu il sottomarino più prodotto della storia (703 unità). La sua campagna nell\'Atlantico — nota come Battaglia dell\'Atlantico — fu uno degli scontri navali più lunghi della WWII.', battles:'Battaglia dell\'Atlantico 1939-1945. Affondate milioni di tonnellate di naviglio alleato con la tattica del "Branco di Lupi".'},
+  {id:'u21',   name:'U-Boot Tipo XXI',    class:'Tipo XXI',           nation:'Germania',               year:'1944', len:'76.7m',disp:'1621t', spd:'15.6kn', crew:'57',  real:true,  role:'Sottomarino elettrico avanzato', note:'Rivoluzione tecnologica. Base di tutti i sottomarini moderni.',desc:'Il Tipo XXI rivoluzionò la guerra sottomarina: immersione prolungata, schnorkel, sonar avanzato. Arrivò troppo tardi per cambiare le sorti della guerra ma influenzò ogni progetto successivo.', battles:'Pochi esemplari operativi prima della resa. Il progetto ispirò i sottomarini NATO e sovietici del dopoguerra.'},
+  {id:'gato',  name:'USS Gato (SS-212)',  class:'Classe Gato',        nation:'USA',                    year:'1941', len:'95m',  disp:'1525t', spd:'20kn',   crew:'60',  real:true,  role:'Sottomarino oceanico Pacifico', note:'Spina dorsale della flotta USA nel Pacifico.', desc:'La classe Gato guidò la campagna sottomarina americana nel Pacifico. Attacchi ai convogli, operazioni speciali e raccolta di intelligence ne fecero uno strumento bellico versatile e devastante.', battles:'Campagna del Pacifico 1942-1945. Affondamento di navi da guerra e mercantili giapponesi. Liberazione delle Filippine.'},
+  {id:'i400',  name:'I-400 Sen-Toku',     class:'Sen-Toku I-400',     nation:'Giappone',               year:'1944', len:'122m', disp:'6500t', spd:'18.7kn', crew:'144', real:true,  role:'Sottomarino portaerei strategico', note:'Il più grande sottomarino della WWII. Trasportava 3 aerei idrovolanti.',desc:'Progettato per colpire il Canale di Panama e le città americane con aerei idrovolanti Aichi M6A. Rimase un capolavoro ingegneristico mai replicato.', battles:'Intercettato prima della missione finale contro il Canale di Panama nel 1945. Resa del Giappone.'},
+  {id:'naut',  name:'USS Nautilus SSN-571',class:'Classe Nautilus',   nation:'USA',                    year:'1954', len:'97m',  disp:'3533t', spd:'22kn',   crew:'105', real:true,  role:'Primo sottomarino nucleare al mondo', note:'17 gen 1955: "Underway on nuclear power". Rivoluzione epocale.',desc:'Il Nautilus cambiò il mondo con il primo utilizzo del nucleare su un sommergibile. Nel 1958 fu il primo vascello a transitare sotto il Polo Nord, aprendo l\'era della deterrenza subacquea.', battles:'Prima traversata artica sotto il ghiaccio polare (1958). Dimostrazione della superiorità nucleare USA nella Guerra Fredda.'},
+  {id:'la',    name:'USS Los Angeles',     class:'Classe Los Angeles', nation:'USA',                    year:'1976', len:'110.3m',disp:'6900t', spd:'25+kn',  crew:'129', real:true,  role:'Cacciatore di sottomarini e attacco a terra', note:'62 unità costruite. La flotta più numerosa della US Navy.',desc:'La classe Los Angeles dominò i fondali della Guerra Fredda. Con 62 unità costruite, armata di siluri e missili Tomahawk, è stata la più prolifica classe di sottomarini nucleari americani.', battles:'Pattugliamento anti-sovietico Guerra Fredda. Lanci Tomahawk Desert Storm 1991, Iraq, Afghanistan.'},
+  {id:'akula', name:'Akula Class',         class:'Progetto 971',       nation:'Russia',                 year:'1984', len:'110.3m',disp:'13800t',spd:'35kn',   crew:'73',  real:true,  role:'Sottomarino d\'attacco rapido', note:'Soprannominato "Squalo": silenziossisimo e velocissimo.',desc:'L\'Akula rappresentò un salto qualitativo enorme. Eccezionalmente silenzioso, mise in difficoltà i sistemi NATO. La velocità di 35 nodi sott\'acqua rimase a lungo un record mondiale.', battles:'Pattugliamento nei tre oceani durante la Guerra Fredda. Seguito dalla US Navy in numerosi incidenti non dichiarati.'},
+  {id:'sea',   name:'USS Seawolf',         class:'Classe Seawolf',     nation:'USA',                    year:'1995', len:'107.6m',disp:'9137t', spd:'35kn',   crew:'140', real:true,  role:'Sottomarino d\'attacco profondo', note:'Il più capace mai costruito, ridotto a 3 unità per i costi.',desc:'Progettato per la minaccia sovietica avanzata, il Seawolf è considerato il picco dell\'ingegneria sottomarina americana. I costi enormi portarono allo sviluppo della più economica classe Virginia.', battles:'Operazioni SPECOPS in acque profonde. Intelligence in zone ad alto rischio durante e dopo la Guerra Fredda.'},
+  {id:'yasen', name:'Yasen-M (Kazan)',      class:'Progetto 885M',      nation:'Russia',                 year:'2011', len:'130m', disp:'13800t',spd:'35kn',   crew:'90',  real:true,  role:'Sottomarino multiruolo avanzato', note:'Missili Kalibr usati in Siria 2015 e in Ucraina 2022.',desc:'Il Yasen-M è l\'apice della tecnologia russa contemporanea. Armato di missili da crociera Kalibr capaci di colpire obiettivi a 2500 km, ha condotto attacchi reali in Siria e Ucraina.', battles:'Lanci Kalibr in Siria 2015-2016. Operazioni navali conflitto ucraino 2022.'},
+  {id:'virg',  name:'USS Virginia',         class:'Classe Virginia',    nation:'USA',                    year:'2004', len:'114.8m',disp:'7925t', spd:'25+kn',  crew:'135', real:true,  role:'Sottomarino d\'attacco multiruolo', note:'Spina dorsale attuale US Navy. Operativa fino agli anni 2050.',desc:'La Virginia combina capacità di attacco, intelligence e operazioni speciali. Con oltre 20 unità in servizio, è il fulcro della supremazia subacquea americana del XXI secolo.', battles:'Medio Oriente, Pacifico contro Cina e Corea del Nord. Lanci Tomahawk in campagne recenti.'},
+  {id:'ast',   name:'HMS Astute',           class:'Classe Astute',      nation:'Gran Bretagna',          year:'2010', len:'97m',  disp:'7800t', spd:'29kn',   crew:'98',  real:true,  role:'Sottomarino nucleare d\'attacco', note:'Reattore che non richiede rifornimento per l\'intera vita.',desc:'HMS Astute porta siluri Spearfish e missili Tomahawk. Il reattore nucleare non necessita rifornimento per tutta la vita operativa, garantendo autonomia illimitata.', battles:'Operazioni NATO Mediterraneo e Atlantico. Deterrenza nucleare alleata.'},
+  {id:'t212',  name:'U212A',               class:'Classe 212A',         nation:'Germania/Italia',        year:'2002', len:'56m',  disp:'1830t', spd:'8kn',    crew:'27',  real:true,  role:'Sottomarino AIP ultra-silenzioso', note:'"Buco Nero subacqueo": quasi invisibile ai sonar.',desc:'La classe 212A è il sottomarino convenzionale più silenzioso al mondo grazie alla propulsione AIP a celle a combustibile. Può restare immerso per settimane.', battles:'Sorveglianza nel Mediterraneo, esercitazioni NATO anti-sommergibile.'},
+  {id:'yuan',  name:'Tipo 039A Yuan',       class:'Classe Yuan',         nation:'Cina',                   year:'2006', len:'75m',  disp:'3600t', spd:'20kn',   crew:'65',  real:true,  role:'Sottomarino d\'attacco AIP', note:'Mar Cinese Meridionale: il guardiano silenzioso di Pechino.',desc:'La classe Yuan è il principale sottomarino convenzionale cinese. Con propulsione AIP e missili avanzati, è la piattaforma con cui la Cina afferma la propria presenza nei mari contesi.', battles:'Pattugliamento Mar Cinese Meridionale. Zone contese con Vietnam, Filippine e Taiwan.'},
+  {id:'oscar', name:'Oscar II — K-141 Kursk',class:'Progetto 949A',     nation:'Russia',                 year:'1993', len:'154m', disp:'24000t',spd:'32kn',   crew:'130', real:true,  role:'Cacciatore di portaerei nucleare', note:'Tragedia 12 ago 2000: 118 marinai persi nel Mar di Barents.',desc:'L\'Oscar II è il più grande sottomarino da attacco del mondo, armato di 24 missili anti-portaerei. Il K-141 Kursk affondò il 12 agosto 2000 per un\'esplosione interna.', battles:'La tragedia del Kursk (2000) è una delle peggiori catastrofi navali della storia russa post-sovietica.'},
+  {id:'ohio',  name:'USS Ohio SSBN-726',    class:'Classe Ohio',         nation:'USA',                    year:'1981', len:'170.7m',disp:'18750t',spd:'20kn',   crew:'155', real:true,  role:'Sottomarino balistico SSBN', note:'24 missili Trident II: deterrente nucleare strategico USA.',desc:'La classe Ohio forma il cuore nucleare americano in mare. 24 missili Trident II D5 capaci di distruggere intere nazioni. Quattro unità convertite in SSGN da attacco convenzionale.', battles:'Pattugliamento continuo per deterrenza nucleare. Le versioni SSGN hanno supportato ops speciali e lanci Tomahawk.'},
+  {id:'typh',  name:'Typhoon (Progetto 941)',class:'Progetto 941 Akula', nation:'URSS/Russia',            year:'1981', len:'175m', disp:'48000t',spd:'27kn',   crew:'160', real:true,  role:'Più grande sottomarino mai costruito', note:'20 missili balistici R-39. Sopravvivenza all\'attacco nucleare.',desc:'Il Typhoon è il più grande sottomarino mai costruito. 48.000 tonnellate, 175 metri, 20 missili nucleari R-39. Progettato per sopravvivere sotto il ghiaccio artico a un primo attacco nucleare.', battles:'Pattugliamento strategico artico Guerra Fredda. La sua esistenza era parte della deterrenza nucleare sovietica.'},
+  {id:'gotl',  name:'HSwMS Gotland',        class:'Classe Gotland',      nation:'Svezia',                 year:'1996', len:'60.4m',disp:'1599t', spd:'20kn',   crew:'25',  real:true,  role:'Sottomarino AIP svedese — "affondò" USS Ronald Reagan',note:'"Affondò" la portaerei USA in esercitazione: USA lo affittò per 2 anni.',desc:'Il Gotland è famoso per aver "affondato" la portaerei USS Ronald Reagan in esercitazioni NATO 2005, causando tale allarme che la US Navy affittò il sottomarino svedese per anni di addestramento.', battles:'Esercitazioni NATO Mar del Nord. "Affondamento" USS Ronald Reagan 2005.'},
+  {id:'kilo',  name:'Kilo (Progetto 636)',  class:'Classe Kilo Migliorata',nation:'Russia',               year:'1982', len:'73.8m',disp:'3950t', spd:'17kn',   crew:'52',  real:true,  role:'Sottomarino silenzioso — "Buco Nero" NATO', note:'Soprannominato "Black Hole". Esportato in 12 nazioni.',desc:'Il Kilo migliorato è soprannominato "Buco Nero" per la firma acustica quasi nulla. Uno dei sottomarini più esportati della storia, operato da Russia, India, Algeria, Vietnam e altri.', battles:'Lanci Kalibr in Siria 2015. Mar Nero conflitto ucraino. Operazioni mondiali degli stati acquirenti.'},
+  {id:'surcouf',name:'Surcouf',             class:'Sottomarino Incrociatore',nation:'Francia',            year:'1929', len:'110m', disp:'4304t', spd:'18.5kn', crew:'118', real:true,  role:'Sottomarino incrociatore con cannoni da 203mm', note:'Sparì nel Mar dei Caraibi il 18 feb 1942. Mistero irrisolto.',desc:'Il Surcouf fu per anni il più grande sottomarino del mondo, armato di cannoni navali da 203mm e un idrovolante. Scomparve misteriosamente nel 1942.', battles:'Servì con la Francia Libera dopo l\'armistizio 1940. Scomparso nel Mar dei Caraibi in circostanze mai chiarite.'},
+  {id:'rubis', name:'Rubis Class',          class:'Classe Rubis',         nation:'Francia',               year:'1983', len:'73.6m',disp:'2600t', spd:'25kn',   crew:'70',  real:true,  role:'Più piccolo sottomarino nucleare al mondo', note:'Operazioni Libia 2011. Atlantico e Mediterraneo NATO.',desc:'La classe Rubis è la più piccola classe nucleare operativa. Sei unità costruite, capacità di attacco con siluri e Tomahawk, operazioni internazionali in vari teatri.',battles:'Operazione Harmattan Libia 2011. Pattugliamenti NATO Atlantico e Mediterraneo.'},
+  {id:'borei', name:'Borei Class (Proj.955)',class:'Progetto 955',         nation:'Russia',               year:'2013', len:'170m', disp:'24000t',spd:'29kn',   crew:'107', real:true,  role:'SSBN di nuova generazione russo', note:'16 missili Bulava. Il futuro del deterrente russo.',desc:'Il Borei è il sottomarino balistico di nuova generazione della Marina Russa, destinato a sostituire i vecchi Delta e Typhoon. Armato di missili Bulava a testata multipla.',battles:'Deterrenza nucleare strategica. Test Bulava. Pattugliamenti sotto la calotta artica.'},
+  {id:'soryu', name:'Soryu Class',          class:'Classe Soryu',          nation:'Giappone',             year:'2009', len:'84m',  disp:'4200t', spd:'20kn',   crew:'65',  real:true,  role:'Sottomarino AIP avanzato giapponese', note:'Tra i migliori convenzionali al mondo. Propulsione Stirling.',desc:'La classe Soryu è considerata uno dei sottomarini convenzionali più capaci del mondo, con propulsione AIP a motori Stirling che garantisce estremo silenzio.', battles:'Pattugliamento nelle acque del Pacifico. Deterrenza rispetto alle ambizioni cinesi e nordcoreane.'},
+  {id:'vang',  name:'HMS Vanguard',         class:'Classe Vanguard',       nation:'Gran Bretagna',        year:'1993', len:'149.9m',disp:'15900t',spd:'25kn',   crew:'135', real:true,  role:'SSBN — deterrente nucleare britannico', note:'16 missili Trident II. L\'unico deterrente nucleare del UK.',desc:'La classe Vanguard rappresenta l\'unica deterrenza nucleare britannica. Quattro unità portano 16 missili Trident II D5, garantendo la capacità di risposta nucleare del Regno Unito.',battles:'Pattugliamento continuo Atlantico Nord. Deterrenza nucleare UK nell\'ambito NATO.'},
+  {id:'hunley',name:'H.L. Hunley',          class:'Sottomarino Confederato',nation:'USA Confederata',     year:'1863', len:'12m',  disp:'7.5t',  spd:'4kn',    crew:'8',   real:true,  role:'Primo sottomarino a affondare una nave da guerra', note:'17 feb 1864: prima vittima storica di un sottomarino.',desc:'Il CSS H.L. Hunley fu il primo sottomarino a affondare una nave nemica in combattimento. Con una sola lancia-siluro artigianale affondò l\'USS Housatonic nel 1864, aprendo una nuova era nella guerra navale.',battles:'17 febbraio 1864: affondamento dell\'USS Housatonic nel porto di Charleston. Il Hunley scomparve subito dopo.'},
+  {id:'letri',  name:'Le Triomphant',        class:'Classe Le Triomphant',  nation:'Francia',              year:'1997', len:'138m', disp:'14335t',spd:'25kn',   crew:'111', real:true,  role:'SSBN francese di nuova generazione', note:'16 missili M51. Deterrente nucleare autonomo francese.',desc:'Le Triomphant guida la flotta SSBN francese, incarnando la dottrina di deterrenza autonoma della Francia. Armato di missili M51 con testate nucleari TN 75.', battles:'Pattugliamento continuo Atlantico. Deterrenza nucleare nella strategia indipendente francese.'},
+  {id:'dolphin',name:'INS Dolphin',         class:'Classe Dolphin',        nation:'Israele',              year:'2000', len:'57.3m',disp:'1900t', spd:'20kn',   crew:'35',  real:true,  role:'Sottomarino strategico — deterrente regionale segreto', note:'Presumibilmente armato di testate nucleari. Deterrente silenzioso.',desc:'Le unità classe Dolphin formano la forza sottomarina israeliana, verosimilmente armata di capacità nucleare con missili da crociera. Costruite in Germania, modificate da Israele.',battles:'Pattugliamenti Mar Rosso, Mediterraneo, Oceano Indiano. Deterrenza regionale contro Iran e altri.'},
+  // FANTASIA [F]
+  {id:'nmythic',name:'[F] Nautilus Mythic', class:'Sottomarino Fantastico', nation:'Sconosciuta',         year:'???',  len:'65m',  disp:'???',   spd:'35kn',  crew:'20',  real:false, role:'Propulsione a cristalli degli abissi', note:'Avvistamenti non confermati in 3 oceani. La Marina USA nega la sua esistenza.',desc:'Il Nautilus Mythic è avvolto nel mistero. Propulsione basata su cristalli energetici degli abissi, quasi invisibile ai sonar. Origine e equipaggio completamente sconosciuti.',battles:'Avvistamenti fantasma in 3 oceani. La Marina USA ha negato la sua esistenza almeno 7 volte ufficialmente.'},
+  {id:'wraith', name:'[F] Wraith',          class:'Sottomarino Fantastico', nation:'Sconosciuta',         year:'???',  len:'45m',  disp:'???',   spd:'50kn',  crew:'8',   real:false, role:'Stealth totale — simula roccia del fondale', note:'Costruito con materiali assorbenti sonar. Invisibile.',desc:'Il Wraith è costruito con materiali che assorbono le onde sonar. Può fermarsi e simulare una roccia del fondale. Il suo equipaggio di 8 opera in isolamento totale per mesi.',battles:'Nessun dato confermato. Sospettato responsabile di "sparizioni" di droni navali in zone classificate.'},
+  {id:'levia',  name:'[F] Leviathan Hunter',class:'Sottomarino Fantastico', nation:'Sconosciuta',         year:'???',  len:'200m', disp:'???',   spd:'40kn',  crew:'300', real:false, role:'Operazioni in profondità abissali — fosse oceaniche', note:'Certificato fino a 12.000m. Fossa delle Marianne.',desc:'Il Leviathan Hunter opera nelle profondità più estreme dove nessun sottomarino convenzionale può arrivare. Pressione certificata fino a 12.000 metri. Armi progettate per bersagli in profondità impossibili.',battles:'Avvistamenti fantomatici nelle acque della Fossa delle Marianne. Progettato per esplorare e controllare le fosse oceaniche.'},
+  {id:'atlant', name:'[F] Atlantean Spear', class:'Sottomarino Fantastico', nation:'Sconosciuta',         year:'???',  len:'88m',  disp:'???',   spd:'60kn',  crew:'40',  real:false, role:'Propulsione supercavitante — 60 nodi subacquei', note:'Tecnologia derivata da strutture atlantidee. In test dal 2019.',desc:'Tecnologia supercavitante avanzata: una bolla d\'acqua intorno allo scafo elimina la resistenza. 60 nodi sott\'acqua è il suo record. Origine dichiarata da strutture subacquee misteriose nell\'Atlantico.',battles:'Mai impiegato ufficialmente. In fase test dal 2019 secondo fonti anonime.'},
+  {id:'shadow', name:'[F] Shadow Empress', class:'Sottomarino Fantastico', nation:'Sconosciuta',         year:'???',  len:'70m',  disp:'???',   spd:'45kn',  crew:'15',  real:false, role:'Guerra elettronica totale — oscura radar e GPS in 500km', note:'Nessuna arma convenzionale. Solo guerra elettronica.',desc:'La Shadow Empress non porta armi. È una piattaforma di guerra elettronica totale: oscura radar, GPS e comunicazioni in 500km. 15 uomini gestiscono sistemi AI avanzati per mesi di missione.',battles:'Scenario speculativo guerra ibrida 2030-2050. Status: classificato.'},
+];
+
+const MISSIONS_DATA = {
+  campagna:[
+    {id:'m1', name:'Scorta Intercettata', diff:'easy',   fleet:'CONVOGLIO ALPHA',  xp:200,  req:0,     desc:'Affonca la scorta nemica e proteggi il convoglio amico.'},
+    {id:'m2', name:'Il Cacciatore',       diff:'normal', fleet:'HMS BULLDOG',       xp:400,  req:0,     desc:'Penetra le difese portuali e elimina la nave ammiraglia.'},
+    {id:'m3', name:'Blocco Navale',       diff:'normal', fleet:'FLOTTA DEL NORD',   xp:600,  req:500,   desc:'Rompi il blocco navale nemico prima che strangoli il porto.'},
+    {id:'m4', name:'Operazione Fantasma', diff:'hard',   fleet:'SONAR NET',         xp:1000, req:1000,  desc:'Attraversa la rete sonar nemica senza essere rilevato.'},
+    {id:'m5', name:'Abisso Nero',         diff:'hard',   fleet:'SHADOW FLEET',      xp:1500, req:2000,  desc:'Elimina la flotta fantasma negli abissi più profondi.'},
+    {id:'m6', name:'Tempesta Perfetta',   diff:'expert', fleet:'TASK FORCE 99',     xp:2000, req:5000,  desc:'Affronta la task force d\'élite in condizioni meteo estreme.'},
+    {id:'m7', name:'Leviatano',           diff:'expert', fleet:'YAMATO CLASS',      xp:3000, req:10000, desc:'Affonca il mostro dei mari — il più grande vascello nemico.'},
+  ],
+  dlc:[
+    {id:'d1', name:'Operazione Abyss',      diff:'legend', fleet:'ABYSS COMMAND',    xp:5000,  req:15000, desc:'DLC: Missione negli abissi con tecnologia sperimentale.'},
+    {id:'d2', name:'Guerra Ibrida 2035',    diff:'legend', fleet:'DRONE SWARM X',    xp:8000,  req:30000, desc:'DLC: Scenario futuro con droni e armi elettromagnetiche.'},
+    {id:'d3', name:'Il Segreto del Nautilus',diff:'legend',fleet:'PHANTOM FLEET',    xp:12000, req:60000, desc:'DLC: Cerca il leggendario sottomarino fantasma negli abissi.'},
+  ],
+  classified:[
+    {id:'c1', name:'REDACTED-01', diff:'legend', fleet:'[CLASSIFIED]', xp:20000, req:80000,  desc:'ACCESSO NEGATO — Richiede clearance Livello 5.'},
+    {id:'c2', name:'REDACTED-02', diff:'legend', fleet:'[CLASSIFIED]', xp:50000, req:100000, desc:'ACCESSO NEGATO — Solo per operatori Honor certificati.'},
+  ]
+};
+
+const SHIP_TYPES = [
+  {id:'carrier',    name:'Portaerei',   size:5},
+  {id:'battleship', name:'Corazzata',   size:4},
+  {id:'cruiser',    name:'Incrociatore',size:3},
+  {id:'destroyer',  name:'Cacciator.',  size:3},
+  {id:'sub',        name:'Sommergibile',size:2},
+];
+
+const OCEAN_COLORS = ['#e0f0ff','#00d4ff','#ff4757','#2ed573','#ffc048','#a855f7','#ffffff','#000000','#8b0000','#006400'];
+const ACCENT_COLORS = ['#00d4ff','#ff4757','#2ed573','#ffc048','#a855f7','#e8f4fd','#000000','#8b0000','#006400','#00a8cc'];
+
+// ══════════════════════════════════════
+// STATE
+// ══════════════════════════════════════
+let currentUser = null;
+let accounts = JSON.parse(localStorage.getItem('su2_accounts')||'{}');
+let messages  = JSON.parse(localStorage.getItem('su2_msgs')||'[]');
+let pubMaps   = JSON.parse(localStorage.getItem('su2_maps')||'[]');
+let squads    = JSON.parse(localStorage.getItem('su2_squads')||'[]');
+let serverOn  = false;
+let activeTab = 'campagna';
+let zoomLvl   = 1.0;
+
+let GS = {
+  phase:'placement', pGrid:[], eGrid:[], pShips:[], eShips:[],
+  selShip:null, orient:'H', placed:[], turn:'player',
+  mode:'quick', training:false, hoverCells:[]
+};
+
+let archState = {
+  oceanColor:'#00d4ff', gridMode:'light', accentColor:'#00d4ff', audio:'off'
+};
+
+// BG
+let bgCanvas, bgCtx, bgAnim, bgParts=[], currentBgEffect='ocean';
+
+window.onload = () => {
+  bgCanvas = document.getElementById('bgc');
+  bgCtx = bgCanvas.getContext('2d');
+  onResize();
+  window.addEventListener('resize', onResize);
+  startBg('ocean');
+  buildSubSelect();
+  buildThemeHome();
+  buildMapThemesBig();
+  buildArchitect();
+  buildCustomization();
+  buildEncyclopedia();
+};
+
+function onResize() {
+  bgCanvas.width  = window.innerWidth;
+  bgCanvas.height = window.innerHeight;
+}
+
+// ══════════════════════════════════════
+// BACKGROUND
+// ══════════════════════════════════════
+function startBg(effect) {
+  currentBgEffect = effect;
+  if(bgAnim) cancelAnimationFrame(bgAnim);
+  bgParts=[];
+  const n = effect==='orbit'?200:effect==='storm'?250:100;
+  for(let i=0;i<n;i++) bgParts.push(mkPart(effect));
+  animBg();
+}
+
+function mkPart(e) {
+  return {
+    x:Math.random()*window.innerWidth,
+    y:Math.random()*window.innerHeight,
+    sz:Math.random()*2.5+0.5,
+    spd:Math.random()*1.5+0.3,
+    a:Math.random()*0.5+0.05,
+    tw:Math.random()*Math.PI*2,
+    angle:e==='storm'?Math.PI/2+(Math.random()-0.5)*0.5:Math.random()*Math.PI*2,
+    e
+  };
+}
+
+function animBg() {
+  const W=bgCanvas.width, H=bgCanvas.height;
+  bgCtx.clearRect(0,0,W,H);
+  const g=bgCtx.createRadialGradient(W/2,H/2,0,W/2,H/2,W*0.9);
+  const themes={
+    ocean:['#05243d','#010a14'], storm:['#080818','#000006'],
+    orbit:['#060014','#000008'], cyber:['#001a0d','#000008'],
+    aurora:['#1a0800','#040003'], magma:['#1f0300','#060000'],
+    abyss:['#000308','#000002'], lusso:['#161000','#050300']
+  };
+  const [c1,c2]=(themes[currentBgEffect]||themes.ocean);
+  g.addColorStop(0,c1); g.addColorStop(1,c2);
+  bgCtx.fillStyle=g; bgCtx.fillRect(0,0,W,H);
+  const t=Date.now()*0.001;
+  bgParts.forEach(p=>{
+    if(p.e==='orbit'||p.e==='storm'){
+      if(p.e==='storm'){
+        bgCtx.strokeStyle=`rgba(130,180,255,${p.a*0.5})`;
+        bgCtx.lineWidth=0.8;
+        bgCtx.beginPath();
+        bgCtx.moveTo(p.x,p.y);
+        bgCtx.lineTo(p.x-Math.cos(p.angle)*p.sz*12,p.y-Math.sin(p.angle)*p.sz*12);
+        bgCtx.stroke();
+        p.x+=Math.cos(p.angle)*(p.spd*3); p.y+=Math.sin(p.angle)*(p.spd*3);
+        if(p.y>H){p.y=-10;p.x=Math.random()*W;}
+      } else {
+        p.tw+=0.015;
+        const a=p.a*(0.4+0.6*Math.sin(p.tw));
+        bgCtx.fillStyle=`rgba(200,200,255,${a})`;
+        bgCtx.beginPath();bgCtx.arc(p.x,p.y,p.sz,0,Math.PI*2);bgCtx.fill();
+      }
+    } else {
+      const colorMap={ocean:'0,212,255',cyber:'0,255,120',aurora:'255,100,50',
+        magma:'255,80,0',abyss:'0,60,120',lusso:'255,215,0',storm:'0,150,255'};
+      const col=colorMap[p.e]||'0,212,255';
+      const wy=p.y+Math.sin(t*p.spd+p.x*0.008)*8;
+      const wx=p.x+Math.cos(t*p.spd*0.5)*4;
+      bgCtx.fillStyle=`rgba(${col},${p.a})`;
+      bgCtx.beginPath();bgCtx.arc(wx,wy,p.sz,0,Math.PI*2);bgCtx.fill();
+    }
+  });
+  if(['ocean','storm','cyber'].includes(currentBgEffect)){
+    for(let i=0;i<3;i++){
+      const col=currentBgEffect==='cyber'?'0,255,120':'0,212,255';
+      bgCtx.strokeStyle=`rgba(${col},${0.04+i*0.02})`;
+      bgCtx.lineWidth=1;
+      bgCtx.beginPath();
+      for(let x=0;x<W;x+=6){
+        const y=H*(0.25+i*0.2)+Math.sin((x+t*30*(i+1)*12)*0.012)*30;
+        x===0?bgCtx.moveTo(x,y):bgCtx.lineTo(x,y);
+      }
+      bgCtx.stroke();
+    }
+  }
+  bgAnim=requestAnimationFrame(animBg);
+}
+
+// ══════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════
+function goRegister(){ showScreen('register'); }
+function goLogin()   { showScreen('login'); }
+
+function checkOwnerEmail(){
+  const email=document.getElementById('li-email').value.trim().toLowerCase();
+  document.getElementById('pwd-field').style.display=email===OWNER_EMAIL?'none':'block';
+}
+
+function doLogin(){
+  const email=document.getElementById('li-email').value.trim().toLowerCase();
+  const pwd=document.getElementById('li-pwd').value;
+  const err=document.getElementById('li-err');
+  if(!email){err.textContent='Inserisci l\'email.';return;}
+
+  if(email===OWNER_EMAIL){
+    if(!accounts[email]){
+      accounts[email]={
+        name:'Honor Admiral',email:OWNER_EMAIL,isOwner:true,
+        xp:999999,level:100,trainUnlocked:true,
+        completedMissions:['m1','m2','m3','m4','m5','m6','m7','d1','d2','d3','c1','c2'],
+        activeBg:'ocean',activeTheme:'sonar',activeSkin:'std',activeSink:'standard',
+        wins:99,honor:9999
+      };
+      save();
+    }
+    currentUser=accounts[email];
+    enterMenu();
+    return;
+  }
+
+  if(!accounts[email]){err.textContent='Account non trovato.';return;}
+  if(accounts[email].password!==pwd){err.textContent='Password errata.';return;}
+  currentUser=accounts[email];
+  enterMenu();
+}
+
+function doRegister(){
+  const name=document.getElementById('rg-name').value.trim();
+  const email=document.getElementById('rg-email').value.trim().toLowerCase();
+  const pwd=document.getElementById('rg-pwd').value;
+  const pwd2=document.getElementById('rg-pwd2').value;
+  const err=document.getElementById('rg-err');
+  if(!name||name.length<2){err.textContent='Nome troppo corto.';return;}
+  if(!email||!email.includes('@')){err.textContent='Email non valida.';return;}
+  if(email===OWNER_EMAIL){err.textContent='Email riservata.';return;}
+  if(pwd.length<6){err.textContent='Password minima 6 caratteri.';return;}
+  if(pwd!==pwd2){err.textContent='Le password non coincidono.';return;}
+  if(accounts[email]){err.textContent='Email già registrata.';return;}
+
+  accounts[email]={
+    name,email,password:pwd,isOwner:false,
+    xp:0,level:1,trainUnlocked:false,
+    completedMissions:[],
+    activeBg:'ocean',activeTheme:'sonar',activeSkin:'std',activeSink:'standard',
+    wins:0,honor:0
+  };
+  save();
+  notify('Account creato! Accedi ora.','ok');
+  goLogin();
+}
+
+function doLogout(){
+  currentUser=null;
+  document.getElementById('li-email').value='';
+  document.getElementById('li-pwd').value='';
+  document.getElementById('li-err').textContent='';
+  document.getElementById('pwd-field').style.display='block';
+  showScreen('login');
+}
+
+function save(){ localStorage.setItem('su2_accounts',JSON.stringify(accounts)); }
+
+function enterMenu(){
+  updateHeader();
+  switchTab('campagna', document.querySelector('.mtab'));
+  buildThemeHome();
+  buildMapThemesBig();
+  buildSubSelect();
+  updateSubCard();
+  document.getElementById('honor-pill').style.display=currentUser.isOwner?'flex':'none';
+  document.getElementById('owner-bar').style.display=currentUser.isOwner?'flex':'none';
+  document.getElementById('train-sub').textContent=
+    (currentUser.isOwner||currentUser.trainUnlocked)?'Senza penalità XP':'Vinci 1 partita';
+  document.getElementById('train-lock').style.display=
+    (currentUser.isOwner||currentUser.trainUnlocked)?'none':'block';
+  startBg(currentUser.activeBg||'ocean');
+  showScreen('menu');
+}
+
+function updateHeader(){
+  if(!currentUser)return;
+  const lvl=getLvl(currentUser.xp||0);
+  document.getElementById('hdr-name').textContent=currentUser.name;
+  document.getElementById('hdr-sub').textContent=currentUser.isOwner?'Honor Admin':getRank(lvl);
+  document.getElementById('hdr-lvl').textContent='LVL '+lvl;
+  document.getElementById('hdr-avatar').textContent=currentUser.name[0].toUpperCase();
+  document.getElementById('xp-name').textContent=currentUser.name;
+  const xp=currentUser.xp||0;
+  const cxp=LEVEL_XP[Math.min(lvl-1,99)];
+  const nxp=LEVEL_XP[Math.min(lvl,99)];
+  document.getElementById('xp-val').textContent=xp.toLocaleString()+' / '+nxp.toLocaleString()+' XP';
+  const pct=lvl>=100?100:Math.round((xp-cxp)/(nxp-cxp)*100);
+  document.getElementById('xp-fill').style.width=pct+'%';
+}
+
+function getLvl(xp){
+  for(let i=LEVEL_XP.length-1;i>=0;i--) if(xp>=LEVEL_XP[i]) return i+1;
+  return 1;
+}
+
+function getRank(l){
+  if(l<5)  return 'RECLUTA';
+  if(l<10) return 'MARINAIO';
+  if(l<20) return 'SOTTOUFFICIALE';
+  if(l<35) return 'TENENTE';
+  if(l<50) return 'CAPITANO';
+  if(l<70) return 'COMANDANTE';
+  if(l<90) return 'AMMIRAGLIO';
+  return 'GRANDE AMMIRAGLIO';
+}
+
+// ══════════════════════════════════════
+// SCREEN NAV
+// ══════════════════════════════════════
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+}
+
+function notify(msg,type=''){
+  const n=document.getElementById('notif');
+  n.textContent=msg;
+  n.className='show'+(type?' n-'+type:'');
+  setTimeout(()=>n.className='',3000);
+}
+
+// ══════════════════════════════════════
+// SERVER
+// ══════════════════════════════════════
+function toggleServer(){
+  serverOn=!serverOn;
+  document.getElementById('srv-tog').classList.toggle('on',serverOn);
+  document.getElementById('srv-txt').textContent=serverOn?'ONLINE':'OFFLINE';
+  document.getElementById('srv-txt').className=serverOn?'status-on':'status-off';
+  notify('Server '+(serverOn?'Online!':'Offline.'),'ok');
+}
+
+// ══════════════════════════════════════
+// MENU BUILDERS
+// ══════════════════════════════════════
+function switchTab(tab, el){
+  activeTab=tab;
+  document.querySelectorAll('.mtab').forEach(t=>t.classList.remove('active'));
+  if(el) el.classList.add('active');
+  buildMissions();
+}
+
+function buildMissions(){
+  const list=document.getElementById('missions-list');
+  const data=MISSIONS_DATA[activeTab]||[];
+  if(data.length===0){list.innerHTML='<div class="empty-state">Nessuna missione disponibile.</div>';return;}
+  list.innerHTML=data.map(m=>{
+    const xp=currentUser?.xp||0;
+    const isOwner=currentUser?.isOwner;
+    const locked=!isOwner&&xp<m.req;
+    const done=(currentUser?.completedMissions||[]).includes(m.id);
+    const diffs={easy:'EASY',normal:'NORMAL',hard:'HARD',expert:'EXPERT',legend:'LEGEND'};
+    return `<div class="mrow${locked?' mrow-locked':''}" ${!locked?`onclick="startMission('${m.id}')"`:''}> 
+      <div class="mrow-info">
+        <div class="mrow-name ${activeTab==='dlc'?'dlc-name':activeTab==='classified'?'classified-name':''}">${m.name}</div>
+        <div class="mrow-meta">
+          <span class="diff-badge diff-${m.diff}">${diffs[m.diff]||m.diff.toUpperCase()}</span>
+          <span>· ${m.fleet}</span>
+          ${locked?`<span style="color:var(--red);font-weight:800">🔒 ${m.req.toLocaleString()} XP</span>`:''}
+        </div>
+      </div>
+      <div class="mrow-right">
+        <span class="mrow-xp">+${m.xp} XP</span>
+        ${done?'<span class="check-icon">✓</span>':locked?'<span class="lock-icon2">🔒</span>':''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function buildSubSelect(){
+  const sel=document.getElementById('sub-select');
+  if(!sel)return;
+  sel.innerHTML=SUBS_DB.map(s=>{
+    const xpReq=s.real?0:50000;
+    const locked=!currentUser?.isOwner&&(currentUser?.xp||0)<xpReq&&!s.real;
+    return `<option value="${s.id}"${locked?' disabled':''}>${s.name}${!s.real?' [FANTASIA]':''}${locked?' [BLOCCATO]':''}</option>`;
+  }).join('');
+  updateSubCard();
+}
+
+function updateSubCard(){
+  const sel=document.getElementById('sub-select');
+  if(!sel)return;
+  const sub=SUBS_DB.find(s=>s.id===sel.value)||SUBS_DB[0];
+  document.getElementById('sc-name').textContent=sub.name;
+  document.getElementById('sc-year').textContent=sub.year;
+  document.getElementById('sc-nation').textContent=sub.nation;
+  document.getElementById('sc-role').textContent=sub.role;
+  document.getElementById('sc-note').textContent=sub.note||'—';
+}
+
+function buildThemeHome(){
+  const g=document.getElementById('theme-home-grid');
+  if(!g)return;
+  const xp=currentUser?.xp||0;
+  g.innerHTML=BG_LIST.map(b=>{
+    const unl=currentUser?.isOwner||xp>=b.xp;
+    const active=(currentUser?.activeBg||'ocean')===b.id;
+    return `<div class="th-item ${active?'th-active':''} ${!unl?'th-locked':''}" onclick="${unl?`setBg('${b.id}')`:''}" title="${b.name}${!unl?' — '+b.xp.toLocaleString()+' XP':''}">
+      <div class="th-emoji">${b.emoji}</div>
+      <div class="th-name">${b.name}</div>
+    </div>`;
+  }).join('');
+}
+
+function buildMapThemesBig(){
+  const g=document.getElementById('map-themes-big');
+  if(!g)return;
+  const xp=currentUser?.xp||0;
+  g.innerHTML=MAP_THEMES_DATA.map(t=>{
+    const unl=currentUser?.isOwner||xp>=t.xp;
+    const active=(currentUser?.activeTheme||'sonar')===t.id;
+    return `<div class="mtbig ${active?'mt-active':''} ${!unl?'mt-locked':''}"
+      style="background:${t.cell};border-color:${active?t.color:unl?'rgba(255,255,255,0.1)':'transparent'};color:${t.color};"
+      onclick="${unl?`setTheme('${t.id}')`:''}" title="${!unl?t.xp.toLocaleString()+' XP required':''}">
+      ${active?'<div class="mt-active-badge">ATTIVO</div>':''}
+      ${t.name}
+      ${!unl?`<div style="position:absolute;inset:0;background:rgba(0,0,0,0.6);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;"><span>🔒</span><span style="font-size:0.6rem;color:var(--red)">${(t.xp/1000).toFixed(0)}k XP</span></div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function setBg(id){
+  if(!currentUser)return;
+  currentUser.activeBg=id;save();
+  startBg(id);buildThemeHome();notify('Sfondo aggiornato!','ok');
+}
+function setTheme(id){
+  if(!currentUser)return;
+  currentUser.activeTheme=id;save();
+  buildMapThemesBig();
+  const g2=document.getElementById('map-themes-custom');
+  if(g2) buildMapThemesCustom();
+  notify('Tema mappa aggiornato!','ok');
+}
+
+// ══════════════════════════════════════
+// ENCYCLOPEDIA
+// ══════════════════════════════════════
+function goEnc(){ buildEncyclopediaData(); showScreen('encyclopedia'); }
+
+function buildEncyclopedia(){
+  const list=document.getElementById('enc-list');
+  if(!list)return;
+  list.innerHTML=SUBS_DB.map((s,i)=>`
+    <div class="enc-row${i===0?' active':''}" id="er-${s.id}" onclick="showSub('${s.id}')">
+      <div class="enc-rname">${s.name} ${!s.real?'<span class="f-tag">[F]</span>':''}</div>
+      <div class="enc-rmeta">${s.class} · ${s.nation}</div>
+    </div>
+  `).join('');
+  showSub(SUBS_DB[0].id);
+}
+
+function buildEncyclopediaData(){ buildEncyclopedia(); }
+
+function showSub(id){
+  document.querySelectorAll('.enc-row').forEach(r=>r.classList.remove('active'));
+  const el=document.getElementById('er-'+id);
+  if(el)el.classList.add('active');
+  const s=SUBS_DB.find(x=>x.id===id);
+  if(!s)return;
+  document.getElementById('enc-main').innerHTML=`
+    <div class="enc-sub-name">${s.name} ${!s.real?'<span class="f-tag">FANTASIA</span>':''}</div>
+    <div class="enc-sub-class">${s.class} · ${s.nation} · ${s.year}</div>
+    <div class="enc-stats">
+      <div class="enc-stat"><div class="enc-sv">${s.len}</div><div class="enc-sl">Lunghezza</div></div>
+      <div class="enc-stat"><div class="enc-sv">${s.disp}</div><div class="enc-sl">Dislocamento</div></div>
+      <div class="enc-stat"><div class="enc-sv">${s.spd}</div><div class="enc-sl">Velocità max</div></div>
+      <div class="enc-stat"><div class="enc-sv">${s.crew}</div><div class="enc-sl">Equipaggio</div></div>
+    </div>
+    <div class="enc-sect">Ruolo Operativo</div>
+    <div class="enc-p">${s.role}</div>
+    <div class="enc-sect">Storia & Descrizione</div>
+    <div class="enc-p">${s.desc}</div>
+    <div class="enc-sect">Battaglie & Operazioni</div>
+    <div class="enc-p">${s.battles}</div>
+  `;
+}
+
+// ══════════════════════════════════════
+// COMMUNITY
+// ══════════════════════════════════════
+function goCommunity(){ buildComm(); showScreen('community'); }
+
+function buildComm(){
+  // messages
+  const ml=document.getElementById('msg-list');
+  if(messages.length===0){ml.innerHTML='<div class="empty-state">Nessun messaggio. Sii il primo!</div>';}
+  else{ml.innerHTML=messages.map(m=>`<div class="msg-item">
+    <div class="msg-author ${m.ow?'ow':''}">${m.author}${m.ow?' ⭐':''}</div>
+    <div class="msg-text2">${m.text}</div>
+    <div class="msg-time2">${m.time}</div>
+  </div>`).join('');ml.scrollTop=9999;}
+
+  // honor board
+  const hb=document.getElementById('honor-board');
+  const sorted=Object.values(accounts).filter(a=>a.xp>0||a.wins>0)
+    .sort((a,b)=>(b.xp||0)-(a.xp||0)).slice(0,8);
+  hb.innerHTML=sorted.length?sorted.map((a,i)=>`<div class="board-row">
+    <span class="board-rank">#${i+1}</span>
+    <span class="board-name">${a.name}${a.isOwner?' ⭐':''}</span>
+    <span class="board-xp">${(a.xp||0).toLocaleString()} XP</span>
+  </div>`).join(''):'<div class="empty-state">Nessuna partita giocata.</div>';
+
+  // maps
+  const ml2=document.getElementById('maps-list');
+  ml2.innerHTML=pubMaps.length?pubMaps.map(m=>`<div class="board-row">
+    <span style="font-size:0.82rem;font-weight:700">${m.name}</span>
+    <span style="font-size:0.72rem;color:var(--text3)">di ${m.author}</span>
+  </div>`).join(''):'<div class="empty-state">Nessuna mappa pubblicata.</div>';
+
+  // squads
+  const sl=document.getElementById('squads-list');
+  sl.innerHTML=squads.length?squads.map(s=>`<div class="board-row">
+    <span style="font-size:0.82rem;font-weight:700">${s.name}</span>
+    <span style="font-size:0.72rem;color:var(--text3)">${s.members} membri</span>
+  </div>`).join(''):'<div class="empty-state">Nessun gruppo attivo.</div>';
+}
+
+function sendMsg(){
+  const inp=document.getElementById('msg-in');
+  const txt=inp.value.trim();
+  if(!txt||!currentUser)return;
+  messages.push({author:currentUser.name,text:txt,time:new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}),ow:currentUser.isOwner});
+  localStorage.setItem('su2_msgs',JSON.stringify(messages));
+  inp.value='';buildComm();
+}
+
+function createSquad(){
+  const nm=prompt('Nome del gruppo video:');
+  if(!nm?.trim())return;
+  squads.push({name:nm.trim(),members:1,leader:currentUser?.name||'Ospite'});
+  localStorage.setItem('su2_squads',JSON.stringify(squads));
+  buildComm();
+}
+
+// ══════════════════════════════════════
+// MAP ARCHITECT
+// ══════════════════════════════════════
+function goArchitect(){ buildArchitect(); showScreen('architect'); }
+
+function buildArchitect(){
+  // Ocean colors
+  const oc=document.getElementById('ocean-colors');
+  if(oc) oc.innerHTML=OCEAN_COLORS.map(c=>`
+    <div class="color-dot ${archState.oceanColor===c?'selected':''}"
+      style="background:${c}" onclick="setArchOcean('${c}')"></div>
+  `).join('')+'<input type="color" id="ocean-custom" style="width:26px;height:26px;border-radius:50%;border:2px solid var(--border2);cursor:pointer;background:none" onchange="setArchOcean(this.value)" />';
+
+  // Accent colors
+  const ac=document.getElementById('accent-colors');
+  if(ac) ac.innerHTML=ACCENT_COLORS.map(c=>`
+    <div class="color-dot ${archState.accentColor===c?'selected':''}"
+      style="background:${c}" onclick="setArchAccent('${c}')"></div>
+  `).join('')+'<input type="color" id="accent-custom" style="width:26px;height:26px;border-radius:50%;border:2px solid var(--border2);cursor:pointer;background:none" onchange="setArchAccent(this.value)" />';
+
+  // Audio
+  const audios=['OFF','Cinematic','Warzone','Custom (Spotify Only)'];
+  const ao=document.getElementById('audio-opts');
+  if(ao) ao.innerHTML=audios.map(a=>`
+    <div class="ao ${archState.audio===a.toLowerCase()?'active':a==='OFF'?'inactive':''}" onclick="setArchAudio('${a.toLowerCase()}')">
+      <span>${a==='OFF'?'✕':'▷'}</span> ${a}
+    </div>
+  `).join('');
+
+  updatePreview();
+}
+
+function setArchOcean(c){ archState.oceanColor=c; buildArchitect(); }
+function setArchAccent(c){ archState.accentColor=c; buildArchitect(); }
+function setGridMode(m){
+  archState.gridMode=m;
+  document.getElementById('gtog-light').classList.toggle('active',m==='light');
+  document.getElementById('gtog-dark').classList.toggle('active',m==='dark');
+  updatePreview();
+}
+function setArchAudio(a){ archState.audio=a; buildArchitect(); }
+
+function updatePreview(){
+  const name=document.getElementById('arch-name')?.value||'Nuova Mappa';
+  const el=document.getElementById('prev-name');
+  if(el){el.textContent=name;el.style.color=archState.accentColor;}
+  const meta=document.getElementById('prev-meta');
+  if(meta) meta.textContent=`THEME CONFIGURATION // ${archState.audio.toUpperCase()} AUDIO`;
+
+  const grid=document.getElementById('mini-preview');
+  if(!grid)return;
+  const borderC=archState.gridMode==='dark'?'rgba(0,0,0,0.4)':'rgba(255,255,255,0.15)';
+  grid.innerHTML=Array(36).fill(0).map((_,i)=>{
+    const isHit=i===16, isMiss=i===8;
+    let bg=archState.oceanColor+'44';
+    if(isHit) bg='rgba(255,71,87,0.5)';
+    if(isMiss) bg='rgba(255,255,255,0.08)';
+    return `<div class="mg-cell" style="background:${bg};border-color:${borderC}">
+      ${isHit?`<div style="text-align:center;font-size:0.6rem;font-weight:900;color:#ff8090;line-height:1.4">✕</div>`:''}
+      ${isMiss?`<div style="text-align:center;font-size:0.8rem;color:rgba(255,255,255,0.3);line-height:1.4">·</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function saveMap(){
+  const name=document.getElementById('arch-name')?.value.trim()||'Nuova Mappa';
+  if(!currentUser){notify('Accedi per salvare.','err');return;}
+  pubMaps.push({name,author:currentUser.name,theme:archState.oceanColor,audio:archState.audio,ts:Date.now()});
+  localStorage.setItem('su2_maps',JSON.stringify(pubMaps));
+  notify('Mappa salvata e pubblicata!','ok');
+  showScreen('menu');
+}
+
+// ══════════════════════════════════════
+// CUSTOMIZATION SCREEN
+// ══════════════════════════════════════
+function goCustom(){ buildCustomization(); showScreen('custom'); }
+
+function buildCustomization(){
+  if(!document.getElementById('bg-grid2'))return;
+  const xp=currentUser?.xp||0;
+  const isOwner=currentUser?.isOwner;
+
+  // Backgrounds
+  document.getElementById('bg-grid2').innerHTML=BG_LIST.map(b=>{
+    const unl=isOwner||xp>=b.xp;
+    const active=(currentUser?.activeBg||'ocean')===b.id;
+    return `<div class="bgc2 ${active?'bgc-active':''} ${!unl?'bgc-locked':''}" onclick="${unl?`setBg('${b.id}')`:''}" >
+      <span class="bgc2-prev">${b.emoji}</span>
+      <div class="bgc2-name">${b.name}</div>
+      <div class="bgc2-xp">${b.xp===0?'GRATIS':b.xp.toLocaleString()+' XP'}</div>
+      ${!unl?`<div class="lock-ovl"><div class="lock-ovl-icon">🔒</div><div class="lock-ovl-xp">${b.xp.toLocaleString()} XP</div></div>`:''}
+    </div>`;
+  }).join('');
+
+  // Map themes in customize
+  buildMapThemesCustom();
+
+  // Sink effects
+  document.getElementById('sink-effects').innerHTML=SINK_EFFECTS.map(e=>{
+    const active=(currentUser?.activeSink||'standard')===e.id;
+    return `<div class="se-row ${active?'se-active':''}" onclick="setSink('${e.id}')">
+      <div class="se-left">
+        <div class="se-dot" style="background:${e.color}"></div>
+        <div class="se-name">${e.name}</div>
+      </div>
+      ${active?'<div class="se-badge">ATTIVO</div>':''}
+    </div>`;
+  }).join('');
+
+  // Skins
+  document.getElementById('skin-grid2').innerHTML=SKINS_DATA.map(s=>{
+    const unl=isOwner||xp>=s.xp;
+    const active=(currentUser?.activeSkin||'std')===s.id;
+    return `<div class="skc ${active?'skc-active':''} ${!unl?'skc-locked':''}" onclick="${unl?`setSkin('${s.id}')`:''}" >
+      <div class="skc-icon">${s.emoji}</div>
+      <div class="skc-name">${s.name}</div>
+      <div class="skc-xp">${s.xp===0?'GRATIS':s.xp.toLocaleString()+' XP'}</div>
+      ${!unl?`<div class="lock-ovl" style="border-radius:7px"><div class="lock-ovl-icon">🔒</div><div class="lock-ovl-xp">${s.xp.toLocaleString()}</div></div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function buildMapThemesCustom(){
+  const g=document.getElementById('map-themes-custom');
+  if(!g)return;
+  const xp=currentUser?.xp||0;
+  g.innerHTML=MAP_THEMES_DATA.map(t=>{
+    const unl=currentUser?.isOwner||xp>=t.xp;
+    const active=(currentUser?.activeTheme||'sonar')===t.id;
+    return `<div class="mtbig ${active?'mt-active':''} ${!unl?'mt-locked':''}"
+      style="background:${t.cell};border-color:${active?t.color:unl?'rgba(255,255,255,0.08)':'transparent'};color:${t.color};"
+      onclick="${unl?`setTheme('${t.id}')`:''}" >
+      ${active?'<div class="mt-active-badge">ATTIVO</div>':''}
+      ${t.name}
+      ${!unl?`<div style="position:absolute;inset:0;background:rgba(0,0,0,0.6);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;"><span>🔒</span><span style="font-size:0.6rem;color:var(--red)">${(t.xp/1000).toFixed(0)}k XP</span></div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function setSink(id){ if(!currentUser)return; currentUser.activeSink=id;save();buildCustomization();notify('Effetto aggiornato!','ok'); }
+function setSkin(id){ if(!currentUser)return; currentUser.activeSkin=id;save();buildCustomization();notify('Skin aggiornata!','ok'); }
+
+// ══════════════════════════════════════
+// TRAINING
+// ══════════════════════════════════════
+function goTraining(){
+  if(!currentUser?.isOwner&&!currentUser?.trainUnlocked){notify('Vinci una partita prima!','err');return;}
+  showScreen('training');
+}
+function launchTraining(){ startGame('training'); }
+
+// ══════════════════════════════════════
+// GAME ENGINE
+// ══════════════════════════════════════
+function startQuick(){ startGame('quick'); }
+function startMission(id){ GS.missionId=id; startGame('mission'); }
+
+function startGame(mode){
+  GS={phase:'placement',pGrid:mkGrid(),eGrid:mkGrid(),pShips:[],eShips:[],
+    selShip:null,orient:'H',placed:[],turn:'player',mode,
+    training:mode==='training',hoverCells:[],missionId:GS.missionId||null};
+  zoomLvl=1.0;
+  document.getElementById('zm-val').textContent='1.0×';
+  document.getElementById('game-mode-lbl').textContent=
+    mode==='training'?'ADDESTRAMENTO':mode==='mission'?'CAMPAGNA':'GIOCO RAPIDO';
+  document.getElementById('phase-tag').textContent='POSIZIONAMENTO';
+  document.getElementById('phase-tag').className='phase-tag phase-place';
+  document.getElementById('plc-bar').style.display='flex';
+  document.getElementById('start-btn').style.display='none';
+  document.getElementById('clog').innerHTML='';
+  document.getElementById('fleet-status2').innerHTML='';
+  buildShipPills();
+  placeEnemyFleet();
+  renderGrid('p');renderGrid('e');renderFleet();
+  showScreen('game');
+  applyZoom();
+  addLog('Posiziona la tua flotta sulla griglia sinistra.','sys');
+}
+
+function mkGrid(){ return Array(10).fill(null).map(()=>Array(10).fill(null).map(()=>({ship:null,hit:false,miss:false}))); }
+
+function buildShipPills(){
+  const bar=document.getElementById('ship-pills');
+  bar.innerHTML=SHIP_TYPES.map(s=>`
+    <button class="ship-pill" id="sp-${s.id}" onclick="selShip('${s.id}')">${s.name}(${s.size})</button>
+  `).join('');
+}
+
+function selShip(id){
+  const s=SHIP_TYPES.find(x=>x.id===id);
+  if(!s||GS.placed.includes(id))return;
+  GS.selShip=s;
+  document.querySelectorAll('.ship-pill').forEach(p=>p.classList.remove('sp-active'));
+  document.getElementById('sp-'+id)?.classList.add('sp-active');
+}
+
+function rotateShip(){
+  GS.orient=GS.orient==='H'?'V':'H';
+  document.getElementById('orient-lbl').textContent=GS.orient==='H'?'ORIZ.':'VERT.';
+}
+
+function randomPlace(){
+  GS.pGrid=mkGrid(); GS.pShips=[]; GS.placed=[];
+  SHIP_TYPES.forEach(s=>{
+    let ok=false,tries=0;
+    while(!ok&&tries<200){
+      tries++;
+      const o=Math.random()>.5?'H':'V';
+      const r=Math.floor(Math.random()*(o==='H'?10:11-s.size));
+      const c=Math.floor(Math.random()*(o==='H'?11-s.size:10));
+      if(canPlace(r,c,s.size,o,GS.pGrid)){placeShip(r,c,s,o,GS.pGrid,GS.pShips);GS.placed.push(s.id);ok=true;}
+    }
+  });
+  document.querySelectorAll('.ship-pill').forEach(p=>p.classList.add('sp-placed'));
+  GS.selShip=null;
+  document.getElementById('start-btn').style.display='inline-flex';
+  renderGrid('p');
+}
+
+function canPlace(r,c,sz,o,g){
+  for(let i=0;i<sz;i++){
+    const rr=o==='H'?r:r+i, cc=o==='H'?c+i:c;
+    if(rr>=10||cc>=10||rr<0||cc<0||g[rr][cc].ship)return false;
+  }
+  return true;
+}
+
+function placeShip(r,c,ship,o,g,ships){
+  const cells=[];
+  for(let i=0;i<ship.size;i++){
+    const rr=o==='H'?r:r+i, cc=o==='H'?c+i:c;
+    g[rr][cc].ship=ship.id; cells.push({r:rr,c:cc});
+  }
+  ships.push({...ship,cells,hits:0,sunk:false});
+}
+
+function placeEnemyFleet(){
+  SHIP_TYPES.forEach(s=>{
+    let ok=false,tries=0;
+    while(!ok&&tries<200){
+      tries++;
+      const o=Math.random()>.5?'H':'V';
+      const r=Math.floor(Math.random()*(o==='H'?10:11-s.size));
+      const c=Math.floor(Math.random()*(o==='H'?11-s.size:10));
+      if(canPlace(r,c,s.size,o,GS.eGrid)){placeShip(r,c,s,o,GS.eGrid,GS.eShips);ok=true;}
+    }
+  });
+}
+
+function getThemeData(){
+  return MAP_THEMES_DATA.find(t=>t.id===(currentUser?.activeTheme||'sonar'))||MAP_THEMES_DATA[0];
+}
+
+function renderGrid(who){
+  const th=getThemeData();
+  const isP=who==='p';
+  const g=isP?GS.pGrid:GS.eGrid;
+  const el=document.getElementById(isP?'pgrid':'egrid');
+  el.innerHTML='';
+
+  // header
+  const hr=document.createElement('div');hr.className='gh-row';
+  const cn=document.createElement('div');cn.className='gh-corner';hr.appendChild(cn);
+  for(let c=0;c<10;c++){const h=document.createElement('div');h.className='gh-cell';h.textContent=String.fromCharCode(65+c);hr.appendChild(h);}
+  el.appendChild(hr);
+
+  for(let r=0;r<10;r++){
+    const row=document.createElement('div');row.className='gh-row';
+    const rh=document.createElement('div');rh.className='gr-header';rh.textContent=r+1;row.appendChild(rh);
+    for(let c=0;c<10;c++){
+      const cell=document.createElement('div');
+      cell.className='gcell2';
+      const d=g[r][c];
+      cell.style.background=th.cell;
+      cell.style.borderColor=th.border;
+      if(d.hit)cell.classList.add('c-hit');
+      else if(d.miss)cell.classList.add('c-miss');
+      else if(isP&&d.ship)cell.classList.add('c-ship');
+      if(!isP&&GS.phase==='battle'&&!d.hit&&!d.miss){
+        cell.style.cursor='crosshair';
+        cell.addEventListener('click',()=>playerAttack(r,c));
+        cell.addEventListener('mouseenter',()=>{cell.style.background='rgba(255,71,87,0.15)';});
+        cell.addEventListener('mouseleave',()=>{if(!g[r][c].hit&&!g[r][c].miss)cell.style.background=th.cell;});
+      }
+      if(isP&&GS.phase==='placement'){
+        cell.addEventListener('click',()=>placementClick(r,c));
+        cell.addEventListener('mouseenter',()=>previewPlacement(r,c));
+        cell.addEventListener('mouseleave',()=>clearPreview());
+      }
+      row.appendChild(cell);
+    }
+    el.appendChild(row);
+  }
+}
+
+function previewPlacement(r,c){
+  clearPreview();
+  if(!GS.selShip||GS.phase!=='placement')return;
+  const s=GS.selShip,o=GS.orient;
+  const ok=canPlace(r,c,s.size,o,GS.pGrid);
+  GS.hoverCells=[];
+  for(let i=0;i<s.size;i++){
+    const rr=o==='H'?r:r+i, cc=o==='H'?c+i:c;
+    if(rr<10&&cc<10){
+      const el=getCellEl('p',rr,cc);
+      if(el){el.style.background=ok?'rgba(0,212,255,0.3)':'rgba(255,71,87,0.3)';GS.hoverCells.push(el);}
+    }
+  }
+}
+
+function clearPreview(){
+  const th=getThemeData();
+  GS.hoverCells.forEach(el=>{if(!el.classList.contains('c-ship'))el.style.background=th.cell;});
+  GS.hoverCells=[];
+}
+
+function getCellEl(who,r,c){
+  const g=document.getElementById(who==='p'?'pgrid':'egrid');
+  const rows=g.querySelectorAll('.gh-row');
+  return rows[r+1]?.querySelectorAll('.gcell2')?.[c]||null;
+}
+
+function placementClick(r,c){
+  if(!GS.selShip){notify('Seleziona una nave!','err');return;}
+  if(GS.placed.includes(GS.selShip.id))return;
+  if(!canPlace(r,c,GS.selShip.size,GS.orient,GS.pGrid)){notify('Posizione non valida!','err');return;}
+  placeShip(r,c,GS.selShip,GS.orient,GS.pGrid,GS.pShips);
+  GS.placed.push(GS.selShip.id);
+  document.getElementById('sp-'+GS.selShip.id)?.classList.add('sp-placed');
+  GS.selShip=null;
+  clearPreview();
+  renderGrid('p');
+  if(GS.placed.length===SHIP_TYPES.length){
+    document.getElementById('start-btn').style.display='inline-flex';
+    notify('Flotta posizionata!','ok');
+  } else {
+    const next=SHIP_TYPES.find(s=>!GS.placed.includes(s.id));
+    if(next) selShip(next.id);
+  }
+}
+
+function beginBattle(){
+  if(GS.placed.length<SHIP_TYPES.length){notify('Posiziona tutte le navi!','err');return;}
+  GS.phase='battle';GS.turn='player';
+  document.getElementById('plc-bar').style.display='none';
+  document.getElementById('phase-tag').textContent='BATTAGLIA';
+  document.getElementById('phase-tag').className='phase-tag phase-battle';
+  renderGrid('p');renderGrid('e');renderFleet();
+  addLog('Battaglia iniziata! Attacca la flotta nemica.','sys');
+}
+
+function playerAttack(r,c){
+  if(GS.turn!=='player'||GS.phase!=='battle')return;
+  const d=GS.eGrid[r][c];
+  if(d.hit||d.miss)return;
+  if(d.ship){
+    d.hit=true;
+    const s=GS.eShips.find(x=>x.cells.some(cl=>cl.r===r&&cl.c===c));
+    if(s){s.hits++;if(s.hits>=s.size){s.sunk=true;addLog('⚠ AFFONDATA: '+s.name+'!','sunk');}else addLog('✕ COLPITO '+String.fromCharCode(65+c)+(r+1)+'!','hit');}
+  } else {d.miss=true;addLog('○ Mancato '+String.fromCharCode(65+c)+(r+1)+'.','miss');}
+  renderGrid('e');renderFleet();
+  if(GS.eShips.every(s=>s.sunk)){handleWin();return;}
+  GS.turn='enemy';
+  document.getElementById('phase-tag').textContent='NEMICO…';
+  setTimeout(enemyTurn,900);
+}
+
+function enemyTurn(){
+  if(GS.training){GS.turn='player';document.getElementById('phase-tag').textContent='TUO TURNO';return;}
+  const avail=[];
+  GS.pGrid.forEach((row,r)=>row.forEach((d,c)=>{if(!d.hit&&!d.miss)avail.push({r,c});}));
+  if(!avail.length)return;
+  const t=avail[Math.floor(Math.random()*avail.length)];
+  const d=GS.pGrid[t.r][t.c];
+  if(d.ship){
+    d.hit=true;
+    const s=GS.pShips.find(x=>x.cells.some(cl=>cl.r===t.r&&cl.c===t.c));
+    if(s){s.hits++;if(s.hits>=s.size){s.sunk=true;addLog('Il nemico ha affondato: '+s.name+'!','sunk');}else addLog('Il nemico ha colpito una tua nave!','hit');}
+  } else {d.miss=true;addLog('Il nemico ha mancato.','miss');}
+  renderGrid('p');
+  if(GS.pShips.every(s=>s.sunk)){
+    addLog('Flotta distrutta — SCONFITTA!','sunk');
+    document.getElementById('phase-tag').textContent='SCONFITTA';
+    document.getElementById('phase-tag').className='phase-tag phase-battle';
+    setTimeout(()=>{if(confirm('Sconfitta! Tornare al menu?'))showScreen('menu');},400);
+    return;
+  }
+  GS.turn='player';
+  document.getElementById('phase-tag').textContent='TUO TURNO';
+  document.getElementById('phase-tag').className='phase-tag phase-battle';
+}
+
+function handleWin(){
+  document.getElementById('phase-tag').textContent='VITTORIA!';
+  document.getElementById('phase-tag').className='phase-tag phase-win';
+  let xpGain=500;
+  if(GS.mode==='mission'&&GS.missionId){
+    const m=[...MISSIONS_DATA.campagna,...MISSIONS_DATA.dlc,...MISSIONS_DATA.classified].find(x=>x.id===GS.missionId);
+    if(m){xpGain=m.xp;if(!currentUser.completedMissions)currentUser.completedMissions=[];currentUser.completedMissions.push(m.id);}
+  }
+  if(GS.training)xpGain=50;
+  const oldLvl=getLvl(currentUser.xp||0);
+  currentUser.xp=(currentUser.xp||0)+xpGain;
+  currentUser.wins=(currentUser.wins||0)+1;
+  currentUser.trainUnlocked=true;
+  const newLvl=getLvl(currentUser.xp);
+  if(newLvl>oldLvl)addLog('🎖 LEVEL UP! Livello '+newLvl+'!','lvl');
+  save();updateHeader();
+  document.getElementById('win-xp-label').textContent='+'+xpGain.toLocaleString()+' XP GUADAGNATI';
+  showWin();
+}
+
+function renderFleet(){
+  const el=document.getElementById('fleet-status2');
+  el.innerHTML=GS.eShips.map(s=>`
+    <div class="ship-row2 ${s.sunk?'sunk2':''}">
+      <div class="sn2">${s.name}</div>
+      <div class="dots2">${Array(s.size).fill(0).map((_,i)=>`<div class="dot2 ${s.sunk?'gone':i<s.hits?'dmg':''}"></div>`).join('')}</div>
+    </div>
+  `).join('')||'<div style="color:var(--text3);font-size:0.78rem">Nessuna nave nemica rilevata.</div>';
+}
+
+function addLog(msg,type=''){
+  const el=document.getElementById('clog');
+  const d=document.createElement('div');d.className='log-e le-'+type;
+  const t=new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  d.textContent=`[${t}] ${msg}`;
+  el.insertBefore(d,el.firstChild);
+}
+
+function zoomChange(d){
+  zoomLvl=Math.max(0.5,Math.min(2.5,zoomLvl+d));
+  document.getElementById('zm-val').textContent=zoomLvl.toFixed(1)+'×';
+  applyZoom();
+}
+
+function applyZoom(){
+  document.getElementById('pg-scale').style.transform=`scale(${zoomLvl})`;
+  document.getElementById('eg-scale').style.transform=`scale(${zoomLvl})`;
+}
+
+function confirmBack(){
+  if(GS.phase==='battle'&&!confirm('Abbandonare la partita?'))return;
+  showScreen('menu');
+}
+
+function showWin(){
+  const o=document.getElementById('win-overlay');o.classList.add('show');
+  const cb=document.getElementById('confetti-box');cb.innerHTML='';
+  const cols=['#ff4757','#00d4ff','#ffc048','#2ed573','#ff6eb4','#a855f7','#00ffd5'];
+  for(let i=0;i<160;i++){
+    const el=document.createElement('div');el.className='cf';
+    el.style.cssText=`left:${Math.random()*100}%;width:${Math.random()*10+5}px;height:${Math.random()*12+6}px;background:${cols[Math.floor(Math.random()*cols.length)]};animation-duration:${Math.random()*3+2}s;animation-delay:${Math.random()*2}s`;
+    cb.appendChild(el);
+  }
+}
+
+function closeWin(){ document.getElementById('win-overlay').classList.remove('show');showScreen('menu'); }
+
+console.log('SubUltimate v2 caricato.');
+</script>
+</body>
+</html>
